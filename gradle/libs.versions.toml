@@ -1,8 +1,8 @@
 [versions]
 fabric-loom = "1.9-SNAPSHOT"
-minecraft = "1.21.1"
+minecraft = "1.19"
 fabric-loader = "0.16.10"
-parchmentmc-mappings = "2024.11.17"
+yarn-mappings = "1.19+build.4"
 lombok = "1.18.36"
 
 [libraries]

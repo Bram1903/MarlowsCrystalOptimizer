@@ -6,19 +6,9 @@ plugins {
 version = "1.0.0-SNAPSHOT"
 group = "com.marlowcrystal"
 
-repositories {
-    maven {
-        name = "ParchmentMC"
-        url = uri("https://maven.parchmentmc.org")
-    }
-}
-
 dependencies {
     minecraft(libs.minecraft)
-    mappings(loom.layered {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${libs.versions.minecraft.get()}:${libs.versions.parchmentmc.mappings.get()}@zip")
-    })
+    mappings("net.fabricmc:yarn:${libs.versions.yarn.mappings.get()}:v2")
     modImplementation(libs.fabric.loader)
 
     compileOnly(libs.lombok)

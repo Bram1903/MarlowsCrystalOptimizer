@@ -1,24 +1,21 @@
 package com.marlowcrystal.mixin;
 
 import com.marlowcrystal.handler.InteractHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Packet;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(Connection.class)
+@Mixin(ClientConnection.class)
 public class ClientConnectionMixin {
-
-    @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;)V", at = @At("HEAD"))
-    private void onPacketSend(Packet<?> packet, CallbackInfo ci) {
-        Minecraft client = Minecraft.getInstance();
-
-        if (packet instanceof ServerboundInteractPacket interactionPacket) {
-            interactionPacket.dispatch(new InteractHandler(client));
+    @Inject(method = "send(Lnet/minecraft/network/Packet;)V", at = @At("HEAD"))
+    private void onPacketSend(Packet<?> packet, CallbackInfo info) {
+        if (packet instanceof PlayerInteractEntityC2SPacket interactPacket) {
+            interactPacket.handle(new InteractHandler(MinecraftClient.getInstance()));
         }
     }
 }

@@ -1,73 +1,87 @@
 package com.marlowcrystal.handler;
 
-import com.marlowcrystal.tools.TieredUtils;
-import com.marlowcrystal.tools.ToolTier;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.game.ServerboundInteractPacket;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.EndCrystalEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ToolItem;
+import net.minecraft.item.ToolMaterials;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Unique;
 
-public class InteractHandler implements ServerboundInteractPacket.Handler {
-
+public class InteractHandler implements PlayerInteractEntityC2SPacket.Handler {
     @Unique
-    private final Minecraft client;
+    private final MinecraftClient mc;
 
-    public InteractHandler(Minecraft client) {
-        this.client = client;
-    }
-
-    @Unique
-    private static boolean isTool(ItemStack itemStack) {
-        Item item = itemStack.getItem();
-
-        // Check if it's a valid tool and belongs to DIAMOND or higher
-        ToolTier tier = TieredUtils.getTier(item);
-        return tier.getLevel() >= ToolTier.DIAMOND.getLevel();
+    public InteractHandler(MinecraftClient mc) {
+        this.mc = mc;
     }
 
     @Override
-    public void onInteraction(InteractionHand interactionHand) {
+    public void interact(Hand hand) {
+        // Empty handler (can be implemented if needed)
     }
 
     @Override
-    public void onInteraction(InteractionHand interactionHand, Vec3 vec3) {
+    public void interactAt(Hand hand, Vec3d pos) {
+        // Empty handler (can be implemented if needed)
     }
 
     @Override
-    public void onAttack() {
-        HitResult hitResult = client.hitResult;
-        if (hitResult == null || hitResult.getType() != HitResult.Type.ENTITY) {
+    public void attack() {
+        // Check if the crosshair is targeting an entity
+        HitResult hitResult = mc.crosshairTarget;
+        if (!(hitResult instanceof EntityHitResult entityHitResult)) {
             return;
         }
 
-        EntityHitResult entityHitResult = (EntityHitResult) hitResult;
-        Entity entity = entityHitResult.getEntity();
-
-        if (entity instanceof EndCrystal) {
-            MobEffectInstance weakness = client.player.getEffect(MobEffects.WEAKNESS);
-            MobEffectInstance strength = client.player.getEffect(MobEffects.DAMAGE_BOOST);
-
-            if (weakness != null && (strength == null || strength.getAmplifier() <= weakness.getAmplifier()) && !isTool(client.player.getMainHandItem())) {
-                return;
+        // Only handle End Crystals
+        if (entityHitResult.getEntity() instanceof EndCrystalEntity endCrystal) {
+            if (canDestroyEndCrystal()) {
+                destroyEndCrystal(endCrystal);
             }
-
-            // Kills the entity client-side
-            entity.remove(Entity.RemovalReason.KILLED);
-            entity.gameEvent(GameEvent.ENTITY_DIE);
-
-            // Plays the explosion sound client-side
-            client.player.playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.0F, 1.0F);
         }
+    }
+
+    /**
+     * Checks if the player is allowed to destroy an End Crystal.
+     */
+    @Unique
+    private boolean canDestroyEndCrystal() {
+        StatusEffectInstance weakness = mc.player.getStatusEffect(StatusEffects.WEAKNESS);
+        StatusEffectInstance strength = mc.player.getStatusEffect(StatusEffects.STRENGTH);
+
+        // Allow destruction if no weakness, strength overcomes weakness
+        return weakness == null || (strength != null && strength.getAmplifier() > weakness.getAmplifier()) || isStrongTool(mc.player.getMainHandStack());
+    }
+
+    /**
+     * Checks if the given item stack is a strong tool (diamond or netherite).
+     */
+    @Unique
+    private boolean isStrongTool(ItemStack itemStack) {
+        if (itemStack == null || !(itemStack.getItem() instanceof ToolItem toolItem)) {
+            return false;
+        }
+
+        ToolMaterials material = (ToolMaterials) toolItem.getMaterial();
+        return material == ToolMaterials.DIAMOND || material == ToolMaterials.NETHERITE;
+    }
+
+    /**
+     * Destroys the given End Crystal entity.
+     */
+    @Unique
+    private void destroyEndCrystal(Entity entity) {
+        entity.kill();
+        entity.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 1.0F, 1.0F);
+        entity.discard();
     }
 }
