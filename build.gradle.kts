@@ -25,7 +25,7 @@ dependencies {
 tasks {
     java {
         disableAutoTargetJvm()
-        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        toolchain.languageVersion.set(JavaLanguageVersion.of(17))
     }
 
     jar {
@@ -36,7 +36,7 @@ tasks {
 
     withType<JavaCompile> {
         options.encoding = Charsets.UTF_8.name()
-        options.release = 21
+        options.release = 17
     }
 
     processResources {
