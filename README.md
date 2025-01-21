@@ -34,7 +34,7 @@ Marlow's Crystal Optimizer requires at least Fabric Loader version `0.16.10` or 
 
 | Platform | Supported Versions |
 |----------|--------------------|
-| Fabric   | 1.21 - 1.21.4      |
+| Fabric   | 1.19 - 1.21.4      |
 
 ## Installation
 

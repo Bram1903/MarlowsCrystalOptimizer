@@ -3,8 +3,12 @@ plugins {
     `maven-publish`
 }
 
-version = "1.0.0-SNAPSHOT"
+version = "1.0.0"
 group = "com.marlowcrystal"
+
+base {
+    archivesName.set("${project.name}-${libs.versions.minecraft.get()}.X")
+}
 
 dependencies {
     minecraft(libs.minecraft)
@@ -51,6 +55,7 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
+            artifactId = project.base.archivesName.get()
             from(components["java"])
         }
     }
