@@ -6,13 +6,6 @@ plugins {
 version = "1.0.0-SNAPSHOT"
 group = "com.marlowcrystal"
 
-repositories {
-    maven {
-        name = "ParchmentMC"
-        url = uri("https://maven.parchmentmc.org")
-    }
-}
-
 dependencies {
     minecraft(libs.minecraft)
     mappings(loom.officialMojangMappings())
