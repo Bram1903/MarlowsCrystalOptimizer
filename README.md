@@ -13,8 +13,6 @@ Marlow's Crystal Optimizer is a mod that optimizes the handling of using end cry
 side,
 instead of waiting for the server to remove it. This can especially be useful when you are on higher ping.
 
-> **Note**: The mod sends a packet to the server to indicate this mod is being used. (Server Opt-Out)
-
 ### Prerequisites
 
 Marlow's Crystal Optimizer requires at least Fabric Loader version `0.16.10` or newer.
