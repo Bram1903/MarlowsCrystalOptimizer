@@ -17,9 +17,7 @@ public class ServerOptOut {
     @Inject(at = @At("TAIL"), method = "handleLogin")
     private void sendInfoPackage(ClientboundLoginPacket packet, CallbackInfo ci) {
         ClientPacketListener networkHandler = (ClientPacketListener) ((Object) this);
-
-        FriendlyByteBuf emptyBuf = new FriendlyByteBuf(Unpooled.buffer());
-        networkHandler.send(new ServerboundCustomPayloadPacket(new ResourceLocation("mco"), emptyBuf));
+        networkHandler.send(new ServerboundCustomPayloadPacket(new ResourceLocation("mco"), new FriendlyByteBuf(Unpooled.buffer())));
     }
 }
 
