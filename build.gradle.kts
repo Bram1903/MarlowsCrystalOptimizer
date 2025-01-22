@@ -14,7 +14,6 @@ dependencies {
     minecraft(libs.minecraft)
     mappings(loom.officialMojangMappings())
     modImplementation(libs.fabric.loader)
-    modImplementation(libs.fabric.api)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
