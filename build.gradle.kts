@@ -14,6 +14,7 @@ dependencies {
     minecraft(libs.minecraft)
     mappings(loom.officialMojangMappings())
     modImplementation(libs.fabric.loader)
+    modImplementation(libs.fabric.api)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
@@ -38,15 +39,15 @@ tasks {
 
     processResources {
         inputs.property("version", project.version)
-        inputs.property("minecraft_version", libs.versions.minecraft.get())
         inputs.property("loader_version", libs.versions.fabric.loader.get())
+        inputs.property("minecraft_version", libs.versions.minecraft.get())
         filteringCharset = "UTF-8"
 
         filesMatching("fabric.mod.json") {
             expand(
                 "version" to project.version,
-                "minecraft_version" to libs.versions.minecraft.get(),
-                "loader_version" to libs.versions.fabric.loader.get()
+                "loader_version" to libs.versions.fabric.loader.get(),
+                "minecraft_version" to libs.versions.minecraft.get()
             )
         }
     }
