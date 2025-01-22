@@ -1,7 +1,7 @@
 [versions]
 fabric-loom = "1.9-SNAPSHOT"
 minecraft = "1.19"
-fabric-loader = "0.16.10"
+fabric-loader = "0.16.5"
 lombok = "1.18.36"
 
 [libraries]

@@ -5,6 +5,10 @@
   <br>
   <a href="https://modrinth.com/mod/marlow-crystal-optimizer"><img alt="MarlowsCrystalOptimizer" src="https://img.shields.io/badge/-Modrinth-green?style=for-the-badge&logo=Modrinth"></a>
   <a href="https://discord.deathmotion.com"><img alt="Discord" src="https://img.shields.io/badge/-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white"></a>
+  <br>
+  <h2>Showcase Video</h2>
+  
+  [![Showcase Video](https://img.youtube.com/vi/CcFT5KuQoZk/maxresdefault.jpg)](https://www.youtube.com/watch?v=CcFT5KuQoZk)
 </div>
 
 ## Overview
