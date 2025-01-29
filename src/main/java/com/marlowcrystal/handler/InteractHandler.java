@@ -8,7 +8,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.item.ItemStack;
@@ -82,9 +82,9 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
         final double[] totalDamage = {0.0D};
 
         // Iterate through modifiers and sum the damage values
-        item.forEachModifier(EquipmentSlotGroup.MAINHAND, (attribute, modifier) -> {
+        item.getAttributeModifiers(EquipmentSlot.MAINHAND).forEach((attribute, modifier) -> {
             if (Attributes.ATTACK_DAMAGE.equals(attribute)) {
-                totalDamage[0] += modifier.amount();
+                totalDamage[0] += modifier.getAmount();
             }
         });
 
@@ -95,6 +95,6 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
         crystal.remove(Entity.RemovalReason.KILLED);
         crystal.gameEvent(GameEvent.ENTITY_DIE);
 
-        player.playSound(SoundEvents.GENERIC_EXPLODE.value(), 1.0F, 1.0F);
+        player.playSound(SoundEvents.GENERIC_EXPLODE, 1.0F, 1.0F);
     }
 }

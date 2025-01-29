@@ -1,8 +1,8 @@
 package com.marlowcrystal.mixin;
 
 import com.marlowcrystal.packets.OptOutPacket;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,6 +14,7 @@ public class ServerOptOut {
 
     @Inject(at = @At("TAIL"), method = "handleLogin")
     private void sendInfoPackage(ClientboundLoginPacket packet, CallbackInfo ci) {
-        ClientPlayNetworking.send(new OptOutPacket());
+        ClientPacketListener networkHandler = (ClientPacketListener) ((Object) this);
+        networkHandler.send(new ServerboundCustomPayloadPacket(new OptOutPacket()));
     }
 }
