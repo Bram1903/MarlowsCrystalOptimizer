@@ -3,7 +3,6 @@ package com.marlowcrystal.handler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -56,7 +55,7 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
         double totalDamage = calculateTotalDamage(player);
 
         if (totalDamage > 0.0D) {
-            destroyCrystal(entity, player);
+            destroyCrystal(entity);
         }
     }
 
@@ -90,10 +89,8 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
         return totalDamage[0];
     }
 
-    private void destroyCrystal(Entity crystal, LocalPlayer player) {
+    private void destroyCrystal(Entity crystal) {
         crystal.remove(Entity.RemovalReason.KILLED);
         crystal.gameEvent(GameEvent.ENTITY_DIE);
-
-        player.playSound(SoundEvents.GENERIC_EXPLODE, 1.0F, 1.0F);
     }
 }
