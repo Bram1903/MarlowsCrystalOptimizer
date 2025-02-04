@@ -19,7 +19,7 @@ instead of waiting for the server to remove it. This can especially be useful wh
 
 ### Prerequisites
 
-Marlow's Crystal Optimizer requires at least Fabric Loader version `0.16.10` or newer.
+Marlow's Crystal Optimizer requires at least Fabric Loader version `0.16.5` or newer.
 
 ## Table of Contents
 
