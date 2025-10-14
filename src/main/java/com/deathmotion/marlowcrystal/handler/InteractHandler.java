@@ -23,7 +23,7 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
 
     @Unique
     private final Minecraft client;
-    
+
     @Unique
     private final DoubleAdder damageAdder = new DoubleAdder();
 
@@ -63,14 +63,14 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
 
     private boolean canDestroyCrystal(LocalPlayer player) {
         MobEffectInstance weakness = player.getEffect(MobEffects.WEAKNESS);
-        
+
         if (weakness == null) {
             return true;
         }
 
         double baseDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
         double weaknessPenalty = 4.0D * (weakness.getAmplifier() + 1);
-        
+
         if (baseDamage > weaknessPenalty + 5.0D) {
             return true;
         }
