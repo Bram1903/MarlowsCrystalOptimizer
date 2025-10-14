@@ -14,6 +14,6 @@ public class ServerOptOut {
 
     @Inject(at = @At("TAIL"), method = "handleLogin")
     private void sendInfoPackage(ClientboundLoginPacket packet, CallbackInfo ci) {
-        ClientPlayNetworking.send(new OptOutPacket());
+        ClientPlayNetworking.send(OptOutPacket.INSTANCE);
     }
 }
