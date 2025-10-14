@@ -17,10 +17,15 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.concurrent.atomic.DoubleAdder;
+
 public class InteractHandler implements ServerboundInteractPacket.Handler {
 
     @Unique
     private final Minecraft client;
+    
+    @Unique
+    private final DoubleAdder damageAdder = new DoubleAdder();
 
     public InteractHandler(Minecraft client) {
         this.client = client;
@@ -42,7 +47,7 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
         }
 
         Entity entity = entityHitResult.getEntity();
-        if (!(entity instanceof EndCrystal)) {
+        if (!(entity instanceof EndCrystal crystal)) {
             return;
         }
 
@@ -51,12 +56,26 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
             return;
         }
 
-        // Calculate the total damage
-        double totalDamage = calculateTotalDamage(player);
-
-        if (totalDamage > 0.0D) {
-            destroyCrystal(entity);
+        if (canDestroyCrystal(player)) {
+            destroyCrystal(crystal);
         }
+    }
+
+    private boolean canDestroyCrystal(LocalPlayer player) {
+        MobEffectInstance weakness = player.getEffect(MobEffects.WEAKNESS);
+        
+        if (weakness == null) {
+            return true;
+        }
+
+        double baseDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        double weaknessPenalty = 4.0D * (weakness.getAmplifier() + 1);
+        
+        if (baseDamage > weaknessPenalty + 5.0D) {
+            return true;
+        }
+
+        return calculateTotalDamage(player) > 0.0D;
     }
 
     private double calculateTotalDamage(LocalPlayer player) {
@@ -69,7 +88,6 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
         MobEffectInstance weakness = player.getEffect(MobEffects.WEAKNESS);
         double weaknessPenalty = weakness != null ? 4.0D * (weakness.getAmplifier() + 1) : 0.0D;
 
-        // Total damage, ensuring it doesn't go negative
         return Math.max(0.0D, baseDamage + weaponDamage + strengthBonus - weaknessPenalty);
     }
 
@@ -78,16 +96,13 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
             return 0.0D;
         }
 
-        final double[] totalDamage = {0.0D};
-
-        // Iterate through modifiers and sum the damage values
+        damageAdder.reset();
         item.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
             if (Attributes.ATTACK_DAMAGE.equals(attribute)) {
-                totalDamage[0] += modifier.amount();
+                damageAdder.add(modifier.amount());
             }
         });
-
-        return totalDamage[0];
+        return damageAdder.sum();
     }
 
     private void destroyCrystal(Entity crystal) {

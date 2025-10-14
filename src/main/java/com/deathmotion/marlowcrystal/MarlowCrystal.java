@@ -8,13 +8,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
-@Getter
 @Environment(EnvType.CLIENT)
 public class MarlowCrystal implements ClientModInitializer {
 
     @Getter
     private static MarlowCrystal instance;
 
+    @Getter
     private Logger logger;
 
     @Override

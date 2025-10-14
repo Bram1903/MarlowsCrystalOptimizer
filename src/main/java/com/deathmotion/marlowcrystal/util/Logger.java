@@ -4,22 +4,22 @@ import com.mojang.logging.LogUtils;
 
 public class Logger {
 
-    private final static String PREFIX = "[MarlowCrystal] ";
+    private static final String PREFIX = "[MarlowCrystal] ";
     private final org.slf4j.Logger logger = LogUtils.getLogger();
 
-    public final void info(final String message) {
-        logger.info(PREFIX + "{}", message);
+    public void info(String message) {
+        logger.info("{}{}", PREFIX, message);
     }
 
-    public final void warn(final String message) {
-        logger.warn(PREFIX + "{}", message);
+    public void warn(String message) {
+        logger.warn("{}{}", PREFIX, message);
     }
 
-    public final void error(final String message) {
-        logger.error(PREFIX + "{}", message);
+    public void error(String message) {
+        logger.error("{}{}", PREFIX, message);
     }
 
-    public final void debug(final String message) {
-        logger.debug(PREFIX + "{}", message);
+    public void debug(String message) {
+        logger.debug("{}{}", PREFIX, message);
     }
 }
