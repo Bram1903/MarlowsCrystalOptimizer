@@ -3,7 +3,7 @@ fabric-loom = "1.11-SNAPSHOT"
 minecraft = "1.21.5"
 fabric-loader = "0.16.10"
 fabric-api = "0.119.5+1.21.5"
-lombok = "1.18.36"
+lombok = "1.18.42"
 
 [libraries]
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
