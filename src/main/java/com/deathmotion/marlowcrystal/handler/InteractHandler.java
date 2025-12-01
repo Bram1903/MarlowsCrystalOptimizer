@@ -15,6 +15,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.concurrent.atomic.DoubleAdder;
@@ -32,11 +33,11 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
     }
 
     @Override
-    public void onInteraction(InteractionHand interactionHand) {
+    public void onInteraction(@NotNull InteractionHand interactionHand) {
     }
 
     @Override
-    public void onInteraction(InteractionHand interactionHand, Vec3 vec3) {
+    public void onInteraction(@NotNull InteractionHand interactionHand, @NotNull Vec3 vec3) {
     }
 
     @Override
