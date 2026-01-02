@@ -20,7 +20,7 @@ public class MarlowCrystal implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         instance = this;
-        PayloadTypeRegistry.serverboundPlay().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundConfiguration().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
 
         logger = new Logger();
         logger.info("Mod initialized");
