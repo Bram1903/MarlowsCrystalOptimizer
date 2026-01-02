@@ -12,9 +12,8 @@ base {
 
 dependencies {
     minecraft(libs.minecraft)
-    mappings(loom.officialMojangMappings())
-    modImplementation(libs.fabric.loader)
-    modImplementation(libs.fabric.api)
+    implementation(libs.fabric.loader)
+    implementation(libs.fabric.api)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
@@ -23,7 +22,7 @@ dependencies {
 tasks {
     java {
         disableAutoTargetJvm()
-        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+        toolchain.languageVersion.set(JavaLanguageVersion.of(25))
     }
 
     jar {
@@ -34,7 +33,7 @@ tasks {
 
     withType<JavaCompile> {
         options.encoding = Charsets.UTF_8.name()
-        options.release = 21
+        options.release = 25
     }
 
     processResources {
