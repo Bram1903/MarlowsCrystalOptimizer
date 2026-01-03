@@ -1,8 +1,10 @@
 package com.deathmotion.marlowcrystal.listener;
 
 import com.deathmotion.marlowcrystal.MarlowCrystal;
+import com.deathmotion.marlowcrystal.cache.OptOutCache;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutAckPacket;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
+import com.deathmotion.marlowcrystal.util.ConnectionUtil;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -10,16 +12,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.Util;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public final class OptOutPacketListener {
 
-    private static final Set<String> NOTIFIED_SERVER_KEYS = ConcurrentHashMap.newKeySet();
+    private OptOutPacketListener() {
+    }
 
     private static Component optimizerDisabledMessage() {
         Component hover = Component.empty()
@@ -37,23 +37,20 @@ public final class OptOutPacketListener {
                 .append(message);
     }
 
-    private static @Nullable String currentServerKey(Minecraft client) {
-        if (client.getCurrentServer() == null) {
-            return null;
-        }
-
-        MarlowCrystal.getLogger().info("Current server: " + client.getCurrentServer().ip);
-        return client.getCurrentServer().ip;
-    }
-
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(OptOutPacket.TYPE, (payload, context) -> {
             Minecraft client = context.client();
+            OptOutCache cache = MarlowCrystal.getInstance().getOptOutCache();
 
-            String key = currentServerKey(client);
-            boolean shouldNotify = (key == null) || NOTIFIED_SERVER_KEYS.add(key);
+            String key = ConnectionUtil.currentServerKey(client);
 
-            if (shouldNotify) {
+            if (key != null) {
+                cache.markOptedOut(key);
+            } else {
+                cache.setOptedOut(true);
+            }
+
+            if (cache.shouldNotify(key)) {
                 CompletableFuture
                         .delayedExecutor(2, TimeUnit.SECONDS, Util.backgroundExecutor())
                         .execute(() -> client.execute(() -> {
@@ -63,7 +60,6 @@ public final class OptOutPacketListener {
                         }));
             }
 
-            MarlowCrystal.getInstance().setOptedOut(true);
             ClientPlayNetworking.send(OptOutAckPacket.INSTANCE);
         });
     }
