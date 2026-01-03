@@ -4,8 +4,7 @@
   "package": "com.deathmotion.marlowcrystal.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "ClientConnectionMixin",
-    "ServerOptOut"
+    "ClientConnectionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

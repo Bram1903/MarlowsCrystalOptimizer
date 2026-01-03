@@ -1,5 +1,6 @@
 package com.deathmotion.marlowcrystal.mixin;
 
+import com.deathmotion.marlowcrystal.MarlowCrystal;
 import com.deathmotion.marlowcrystal.handler.InteractHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
@@ -20,6 +21,8 @@ public class ClientConnectionMixin {
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;)V", at = @At("HEAD"))
     private void onPacketSend(Packet<?> packet, CallbackInfo ci) {
         if (packet instanceof ServerboundInteractPacket interactionPacket) {
+            if (MarlowCrystal.getInstance().isOptedOut()) return;
+
             if (cachedHandler == null) {
                 cachedHandler = new InteractHandler(Minecraft.getInstance());
             }
