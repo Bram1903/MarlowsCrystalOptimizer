@@ -58,8 +58,10 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 
 ## Opt-out Support
 
-If you are running a server and wish to prevent this mod from being used, you can send an opt-out packet to the client.
-This will disable the mod for the duration of the connection. The opt-out must be sent again after a server switch.
+When the client receives an opt-out packet, the mod is disabled for the server identified by the server IP address. The opt-out remains active across
+reconnections and backend switches behind a proxy that shares the same address and therefore only needs to be sent once.
+Once the player disconnects from the server network, the client must be considered no longer opted out and the packet
+must be sent again on the next connection.
 
 ### Plugin Messaging Protocol
 
@@ -124,7 +126,7 @@ private void handleRegister(byte[] data) {
         if (!OPT_OUT_CHANNEL.equals(entry)) {
             continue;
         }
-        
+
         // Make sure you create and send this packet asynchronously!
         player.getUser().sendPacket(new WrapperPlayServerPluginMessage(OPT_OUT_CHANNEL, new byte[0]));
         break;
