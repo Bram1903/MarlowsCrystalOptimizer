@@ -57,30 +57,30 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 2. **Install**: Place the mod in your `mods` folder, located in your `.minecraft` directory (`%appdata%`).
 3. **Launch**: Start the game with the Fabric Loader profile.
 
-## Opt-out Support
+## Opt-Out Support
 
-When the client receives an opt-out packet, the mod is disabled for the server identified by the server IP address. The opt-out remains active across
+When the client receives an opt-out packet, the mod is disabled for the server identified by the server IP address. The
+opt-out remains active across
 reconnections and backend switches behind a proxy that shares the same address and therefore only needs to be sent once.
 Once the player disconnects from the server network, the client must be considered no longer opted out and the packet
 must be sent again on the next connection.
 
 ### Plugin Messaging Protocol
 
-This protocol is used to negotiate client opt-out support between the client mod and the server.
-
 #### Handshake (v1.0.5+)
 
-| Step | Direction       | Channel                     | Payload                          |
-|-----:|-----------------|-----------------------------|----------------------------------|
-|    1 | Client → Server | `minecraft:register`        | Includes `marlowcrystal:opt_out` |
-|    2 | Server → Client | `marlowcrystal:opt_out`     | Empty                            |
-|    3 | Client → Server | `marlowcrystal:opt_out_ack` | Empty                            |
+| Step | Direction       | Channel                     | Payload                                                                                                                                                                 |
+|-----:|-----------------|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|    1 | Client → Server | `marlowcrystal:version`     | Version (See [VersionPacket](https://github.com/Bram1903/MarlowsCrystalOptimizer/blob/main/src/main/java/com/deathmotion/marlowcrystal/packet/impl/VersionPacket.java)) |
+|    2 | Client → Server | `minecraft:register`        | Includes `marlowcrystal:opt_out`                                                                                                                                        |
+|    3 | Server → Client | `marlowcrystal:opt_out`     | Empty                                                                                                                                                                   |
+|    4 | Client → Server | `marlowcrystal:opt_out_ack` | Empty                                                                                                                                                                   |
 
 #### Legacy Clients (pre-1.0.5)
 
-| Channel         | Direction       | Description            |
+| Direction       | Channel         | Description            |
 |-----------------|-----------------|------------------------|
-| `minecraft:mco` | Client → Server | Legacy opt-out message |
+| Client → Server | `minecraft:mco` | Legacy opt-out message |
 
 This channel is **not part of the active protocol**.
 When received, the server should disconnect the player and instruct them to update to **version 1.0.5 or newer**.

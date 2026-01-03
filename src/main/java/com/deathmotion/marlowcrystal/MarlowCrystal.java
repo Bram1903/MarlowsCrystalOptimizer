@@ -6,7 +6,9 @@ import com.deathmotion.marlowcrystal.listener.DisconnectEventListener;
 import com.deathmotion.marlowcrystal.listener.OptOutPacketListener;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutAckPacket;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
+import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
 import com.deathmotion.marlowcrystal.util.Logger;
+import com.deathmotion.marlowcrystal.util.VersionUtil;
 import lombok.Getter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -34,6 +36,9 @@ public class MarlowCrystal implements ClientModInitializer {
     @Getter
     private final OptOutCache optOutCache;
 
+    @Getter
+    private VersionPacket versionPacket;
+
     public MarlowCrystal() {
         instance = this;
         logger = new Logger();
@@ -42,8 +47,13 @@ public class MarlowCrystal implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        PayloadTypeRegistry.clientboundPlay().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
-        PayloadTypeRegistry.serverboundPlay().register(OptOutAckPacket.TYPE, OptOutAckPacket.STREAM_CODEC);
+        versionPacket = VersionUtil.createVersionPacket();
+
+        PayloadTypeRegistry.configurationC2S().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
+
+        PayloadTypeRegistry.playC2S().register(OptOutAckPacket.TYPE, OptOutAckPacket.STREAM_CODEC);
+        PayloadTypeRegistry.playC2S().register(VersionPacket.TYPE, VersionPacket.STREAM_CODEC);
 
         ClientPlayConnectionEvents.JOIN.register(new ConnectEventListener());
         ClientPlayConnectionEvents.DISCONNECT.register(new DisconnectEventListener());

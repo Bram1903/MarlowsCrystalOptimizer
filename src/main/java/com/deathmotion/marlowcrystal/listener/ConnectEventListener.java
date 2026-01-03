@@ -20,6 +20,9 @@ public final class ConnectEventListener implements ClientPlayConnectionEvents.Jo
     @Override
     public void onPlayReady(@NonNull ClientPacketListener handler, @NonNull PacketSender sender, @NonNull Minecraft client) {
         if (client.isLocalServer()) return;
+
+        sender.sendPacket(MarlowCrystal.getInstance().getVersionPacket());
+
         String key = ConnectionUtil.currentServerKey(client);
         boolean shouldOptOut = optOutCache.isServerOptedOut(key);
 
