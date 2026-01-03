@@ -1,13 +1,13 @@
-package com.deathmotion.marlowcrystal.packets;
+package com.deathmotion.marlowcrystal.packet.impl;
 
+import com.deathmotion.marlowcrystal.packet.ModPackets;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public final class OptOutPacket implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<@NotNull OptOutPacket> TYPE = new CustomPacketPayload.Type<>(Identifier.parse("marlowcrystal:opt_out"));
+    public static final CustomPacketPayload.Type<@NotNull OptOutPacket> TYPE = new CustomPacketPayload.Type<>(ModPackets.id("opt_out"));
 
     public static final OptOutPacket INSTANCE = new OptOutPacket();
 

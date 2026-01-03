@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "marlows-crystal-optimizer",
+  "id": "marlowcrystal",
   "version": "${version}",
   "name": "Marlow's Crystal Optimizer",
   "description": "Optimization that fixes waiting on the server after crystal break before end crystal entities are cleaned.",
