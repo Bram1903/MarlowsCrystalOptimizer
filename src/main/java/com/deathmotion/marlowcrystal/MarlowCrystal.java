@@ -49,7 +49,7 @@ public class MarlowCrystal implements ClientModInitializer {
     public void onInitializeClient() {
         versionPacket = VersionUtil.createVersionPacket();
 
-        PayloadTypeRegistry.configurationC2S().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
+        PayloadTypeRegistry.configurationS2C().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
 
         PayloadTypeRegistry.playC2S().register(OptOutAckPacket.TYPE, OptOutAckPacket.STREAM_CODEC);
