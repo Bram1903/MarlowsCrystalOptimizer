@@ -17,18 +17,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ClientConnectionMixin {
 
     @Unique
-    private final OptOutCache optOutCache;
+    private OptOutCache optOutCache;
 
     @Unique
     private InteractHandler cachedHandler;
 
-    public ClientConnectionMixin() {
-        optOutCache = MarlowCrystal.getInstance().getOptOutCache();
-    }
-
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;)V", at = @At("HEAD"))
     private void onPacketSend(Packet<?> packet, CallbackInfo ci) {
         if (packet instanceof ServerboundInteractPacket interactionPacket) {
+            if (optOutCache == null) {
+                optOutCache = MarlowCrystal.getInstance().getOptOutCache();
+            }
             if (optOutCache.isOptedOut()) return;
 
             if (cachedHandler == null) {
