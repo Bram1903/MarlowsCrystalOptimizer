@@ -1,23 +1,28 @@
 package com.deathmotion.marlowcrystal.cache;
 
+import com.deathmotion.marlowcrystal.util.datastructure.EvictingList;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 public final class OptOutCache {
 
-    private final Set<String> optedOutServers = ConcurrentHashMap.newKeySet();
-    private final Set<String> notifiedServers = ConcurrentHashMap.newKeySet();
+    private static final int MAX_SERVERS = 10;
+
+    private final EvictingList<String> optedOutServers = new EvictingList<>(MAX_SERVERS);
+    private final EvictingList<String> notifiedServers = new EvictingList<>(MAX_SERVERS);
 
     @Getter
     @Setter
     private volatile boolean optedOut;
 
-    public void markOptedOut(String serverKey) {
-        optedOutServers.add(serverKey);
+    public void markOptedOut(@Nullable String serverKey) {
+        if (serverKey == null) return;
+
+        if (!optedOutServers.contains(serverKey)) {
+            optedOutServers.add(serverKey);
+        }
+
         optedOut = true;
     }
 
@@ -26,7 +31,14 @@ public final class OptOutCache {
     }
 
     public boolean shouldNotify(@Nullable String serverKey) {
-        return serverKey == null || notifiedServers.add(serverKey);
+        if (serverKey == null) return true;
+
+        if (notifiedServers.contains(serverKey)) {
+            return false;
+        }
+
+        notifiedServers.add(serverKey);
+        return true;
     }
 
     public void clearCurrentSession() {
