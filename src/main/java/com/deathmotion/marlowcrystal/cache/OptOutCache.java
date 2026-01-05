@@ -19,26 +19,37 @@ public final class OptOutCache {
     public void markOptedOut(@Nullable String serverKey) {
         if (serverKey == null) return;
 
-        if (!optedOutServers.contains(serverKey)) {
-            optedOutServers.add(serverKey);
+        synchronized (optedOutServers) {
+            if (!optedOutServers.contains(serverKey)) {
+                optedOutServers.add(serverKey);
+            }
         }
 
         optedOut = true;
     }
 
     public boolean isServerOptedOut(@Nullable String serverKey) {
-        return serverKey != null && optedOutServers.contains(serverKey);
+        if (serverKey == null) return false;
+        synchronized (optedOutServers) {
+            return optedOutServers.contains(serverKey);
+        }
     }
 
-    public boolean shouldNotify(@Nullable String serverKey) {
-        if (serverKey == null) return true;
-
-        if (notifiedServers.contains(serverKey)) {
-            return false;
+    public boolean hasNotified(@Nullable String serverKey) {
+        if (serverKey == null) return false;
+        synchronized (notifiedServers) {
+            return notifiedServers.contains(serverKey);
         }
+    }
 
-        notifiedServers.add(serverKey);
-        return true;
+    public void markNotified(@Nullable String serverKey) {
+        if (serverKey == null) return;
+
+        synchronized (notifiedServers) {
+            if (!notifiedServers.contains(serverKey)) {
+                notifiedServers.add(serverKey);
+            }
+        }
     }
 
     public void clearCurrentSession() {
