@@ -50,14 +50,14 @@ public final class OptOutPacketListener {
                 cache.setOptedOut(true);
             }
 
-            if (cache.shouldNotify(key)) {
-                CompletableFuture
-                        .delayedExecutor(2, TimeUnit.SECONDS, Util.backgroundExecutor())
-                        .execute(() -> client.execute(() -> {
-                            if (client.player != null) {
-                                client.player.displayClientMessage(optimizerDisabledMessage(), false);
-                            }
-                        }));
+            if (!cache.hasNotified(key)) {
+                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS, Util.backgroundExecutor()).execute(() -> client.execute(() -> {
+                    if (client.player == null) return;
+                    if (cache.hasNotified(key)) return;
+
+                    cache.markNotified(key);
+                    client.player.displayClientMessage(optimizerDisabledMessage(), false);
+                }));
             }
 
             ClientPlayNetworking.send(OptOutAckPacket.INSTANCE);
