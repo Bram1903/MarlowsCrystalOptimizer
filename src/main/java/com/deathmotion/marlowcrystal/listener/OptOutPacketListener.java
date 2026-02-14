@@ -56,7 +56,7 @@ public final class OptOutPacketListener {
                     if (cache.hasNotified(key)) return;
 
                     cache.markNotified(key);
-                    client.player.displayClientMessage(optimizerDisabledMessage(), false);
+                    client.player.sendSystemMessage(optimizerDisabledMessage());
                 }));
             }
 
