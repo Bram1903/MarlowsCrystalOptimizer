@@ -1,8 +1,8 @@
 [versions]
 fabric-loom = "1.15-SNAPSHOT"
-minecraft = "26.1-snapshot-10"
+minecraft = "26.1-pre-1"
 fabric-loader = "0.18.4"
-fabric-api = "0.143.4+26.1"
+fabric-api = "0.143.11+26.1"
 lombok = "1.18.42"
 
 [libraries]
