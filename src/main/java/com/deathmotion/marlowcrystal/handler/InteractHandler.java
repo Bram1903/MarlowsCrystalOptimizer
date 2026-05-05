@@ -1,5 +1,7 @@
-package com.marlowcrystal.handler;
+package com.deathmotion.marlowcrystal.handler;
 
+import com.deathmotion.marlowcrystal.MarlowCrystal;
+import com.deathmotion.marlowcrystal.cache.OptOutCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -22,6 +24,9 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
     @Unique
     private final Minecraft client;
 
+    @Unique
+    private OptOutCache optOutCache;
+
     public InteractHandler(Minecraft client) {
         this.client = client;
     }
@@ -36,13 +41,20 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
 
     @Override
     public void onAttack() {
+        if (optOutCache == null) {
+            optOutCache = MarlowCrystal.getInstance().getOptOutCache();
+        }
+        if (optOutCache.isOptedOut()) {
+            return;
+        }
+
         HitResult hitResult = client.hitResult;
         if (!(hitResult instanceof EntityHitResult entityHitResult)) {
             return;
         }
 
         Entity entity = entityHitResult.getEntity();
-        if (!(entity instanceof EndCrystal)) {
+        if (!(entity instanceof EndCrystal crystal)) {
             return;
         }
 
@@ -51,43 +63,49 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
             return;
         }
 
-        // Calculate the total damage
-        double totalDamage = calculateTotalDamage(player);
-
-        if (totalDamage > 0.0D) {
-            destroyCrystal(entity);
+        if (canDestroyCrystal(player)) {
+            destroyCrystal(crystal);
+            retargetCrosshair(crystal);
         }
     }
 
-    private double calculateTotalDamage(LocalPlayer player) {
-        double baseDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        double weaponDamage = getWeaponDamage(player.getMainHandItem());
+    private void retargetCrosshair(EndCrystal crystal) {
+        LocalPlayer player = client.player;
+        if (player == null || client.hitResult == null || client.crosshairPickEntity != crystal || client.gameMode == null) {
+            return;
+        }
+
+        HitResult retraced = player.pick(client.gameMode.getPickRange(), 1.0F, false);
+        client.crosshairPickEntity = null;
+        client.hitResult = retraced;
+    }
+
+    private boolean canDestroyCrystal(LocalPlayer player) {
+        double damage = player.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
+        damage += getWeaponDamage(player.getMainHandItem());
 
         MobEffectInstance strength = player.getEffect(MobEffects.DAMAGE_BOOST);
-        double strengthBonus = strength != null ? 3.0D * (strength.getAmplifier() + 1) : 0.0D;
+        if (strength != null) {
+            damage += 3.0D * (strength.getAmplifier() + 1);
+        }
 
         MobEffectInstance weakness = player.getEffect(MobEffects.WEAKNESS);
-        double weaknessPenalty = weakness != null ? 4.0D * (weakness.getAmplifier() + 1) : 0.0D;
+        if (weakness != null) {
+            damage -= 4.0D * (weakness.getAmplifier() + 1);
+        }
 
-        // Total damage, ensuring it doesn't go negative
-        return Math.max(0.0D, baseDamage + weaponDamage + strengthBonus - weaknessPenalty);
+        return damage > 0.0D;
     }
 
     private double getWeaponDamage(ItemStack item) {
-        if (item.isEmpty()) {
-            return 0.0D;
-        }
-
-        final double[] totalDamage = {0.0D};
-
-        // Iterate through modifiers and sum the damage values
+        if (item.isEmpty()) return 0.0D;
+        final double[] sum = {0.0D};
         item.getAttributeModifiers(EquipmentSlot.MAINHAND).forEach((attribute, modifier) -> {
             if (Attributes.ATTACK_DAMAGE.equals(attribute)) {
-                totalDamage[0] += modifier.getAmount();
+                sum[0] += modifier.getAmount();
             }
         });
-
-        return totalDamage[0];
+        return sum[0];
     }
 
     private void destroyCrystal(Entity crystal) {

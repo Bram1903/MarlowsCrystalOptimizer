@@ -1,4 +1,4 @@
-package com.marlowcrystal.util;
+package com.deathmotion.marlowcrystal.util;
 
 import com.mojang.logging.LogUtils;
 
