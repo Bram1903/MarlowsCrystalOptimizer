@@ -4,6 +4,8 @@ import com.deathmotion.marlowcrystal.MarlowCrystal;
 import com.deathmotion.marlowcrystal.cache.OptOutCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundAttackPacket;
@@ -15,6 +17,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -62,7 +66,20 @@ public class ClientConnectionMixin {
 
         if (canDestroyCrystal(player)) {
             destroyCrystal(crystal);
+            retargetCrosshair(mc, crystal);
         }
+    }
+
+    @Unique
+    private void retargetCrosshair(Minecraft mc, EndCrystal crystal) {
+        if (mc.hitResult == null || mc.crosshairPickEntity != crystal) {
+            return;
+        }
+
+        BlockPos below = crystal.blockPosition().below();
+        Vec3 hit = new Vec3(below.getX() + 0.5D, below.getY() + 1.0D, below.getZ() + 0.5D);
+        mc.crosshairPickEntity = null;
+        mc.hitResult = new BlockHitResult(hit, Direction.UP, below, false);
     }
 
     @Unique
