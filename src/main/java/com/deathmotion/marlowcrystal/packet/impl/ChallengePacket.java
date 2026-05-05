@@ -1,0 +1,23 @@
+package com.deathmotion.marlowcrystal.packet.impl;
+
+import com.deathmotion.marlowcrystal.packet.ModPackets;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+
+public final class ChallengePacket {
+    public static final ResourceLocation ID = ModPackets.id("challenge");
+
+    private final int challengeId;
+
+    public ChallengePacket(int challengeId) {
+        this.challengeId = challengeId;
+    }
+
+    public int challengeId() {
+        return challengeId;
+    }
+
+    public void write(FriendlyByteBuf buf) {
+        buf.writeInt(challengeId);
+    }
+}

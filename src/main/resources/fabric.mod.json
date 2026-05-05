@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "marlows-crystal-optimizer",
+  "id": "marlowcrystal",
   "version": "${version}",
   "name": "Marlow's Crystal Optimizer",
   "description": "Optimization that fixes waiting on the server after crystal break before end crystal entities are cleaned.",
@@ -18,7 +18,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.marlowcrystal.MarlowCrystal"
+      "com.deathmotion.marlowcrystal.MarlowCrystal"
     ]
   },
   "mixins": [
@@ -26,6 +26,7 @@
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "minecraft": ">=1.19 <=1.20.1"
+    "minecraft": ">=1.19 <=1.20.1",
+    "fabric-api": "*"
   }
 }

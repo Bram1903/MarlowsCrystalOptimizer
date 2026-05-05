@@ -3,8 +3,8 @@ plugins {
     `maven-publish`
 }
 
-version = "1.0.3"
-group = "com.marlowcrystal"
+version = "1.1.0"
+group = "com.deathmotion.marlowcrystal"
 
 base {
     archivesName.set("${project.name}-${libs.versions.minecraft.get()}.X")
@@ -14,6 +14,7 @@ dependencies {
     minecraft(libs.minecraft)
     mappings(loom.officialMojangMappings())
     modImplementation(libs.fabric.loader)
+    modImplementation(libs.fabric.api)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
