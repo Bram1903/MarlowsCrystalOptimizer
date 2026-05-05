@@ -1,9 +1,12 @@
 package com.deathmotion.marlowcrystal;
 
 import com.deathmotion.marlowcrystal.cache.OptOutCache;
+import com.deathmotion.marlowcrystal.listener.ChallengePacketListener;
 import com.deathmotion.marlowcrystal.listener.ConnectEventListener;
 import com.deathmotion.marlowcrystal.listener.DisconnectEventListener;
 import com.deathmotion.marlowcrystal.listener.OptOutPacketListener;
+import com.deathmotion.marlowcrystal.packet.impl.ChallengePacket;
+import com.deathmotion.marlowcrystal.packet.impl.ChallengeResponsePacket;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutAckPacket;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
 import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
@@ -51,13 +54,16 @@ public class MarlowCrystal implements ClientModInitializer {
 
         PayloadTypeRegistry.clientboundConfiguration().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
         PayloadTypeRegistry.clientboundPlay().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(ChallengePacket.TYPE, ChallengePacket.STREAM_CODEC);
 
         PayloadTypeRegistry.serverboundPlay().register(OptOutAckPacket.TYPE, OptOutAckPacket.STREAM_CODEC);
         PayloadTypeRegistry.serverboundPlay().register(VersionPacket.TYPE, VersionPacket.STREAM_CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ChallengeResponsePacket.TYPE, ChallengeResponsePacket.STREAM_CODEC);
 
         ClientPlayConnectionEvents.JOIN.register(new ConnectEventListener());
         ClientPlayConnectionEvents.DISCONNECT.register(new DisconnectEventListener());
         OptOutPacketListener.register();
+        ChallengePacketListener.register();
 
         logger.info("Mod initialized");
     }

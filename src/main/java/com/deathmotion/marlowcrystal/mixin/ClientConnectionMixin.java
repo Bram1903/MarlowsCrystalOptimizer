@@ -15,19 +15,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.HitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.concurrent.atomic.DoubleAdder;
-
 @Mixin(Connection.class)
 public class ClientConnectionMixin {
-
-    @Unique
-    private final DoubleAdder damageAdder = new DoubleAdder();
 
     @Unique
     private OptOutCache optOutCache;
@@ -62,53 +58,50 @@ public class ClientConnectionMixin {
 
         if (canDestroyCrystal(player)) {
             destroyCrystal(crystal);
+            retargetCrosshair(mc, crystal);
         }
+    }
+
+    @Unique
+    private void retargetCrosshair(Minecraft mc, EndCrystal crystal) {
+        LocalPlayer player = mc.player;
+        if (player == null || mc.hitResult == null || mc.crosshairPickEntity != crystal) {
+            return;
+        }
+
+        HitResult retraced = player.pick(player.blockInteractionRange(), 1.0F, false);
+        mc.crosshairPickEntity = null;
+        mc.hitResult = retraced;
     }
 
     @Unique
     private boolean canDestroyCrystal(LocalPlayer player) {
-        MobEffectInstance weakness = player.getEffect(MobEffects.WEAKNESS);
-        if (weakness == null) {
-            return true;
-        }
-
-        double baseDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        double weaknessPenalty = 4.0D * (weakness.getAmplifier() + 1);
-
-        if (baseDamage > weaknessPenalty + 5.0D) {
-            return true;
-        }
-
-        return calculateTotalDamage(player) > 0.0D;
-    }
-
-    @Unique
-    private double calculateTotalDamage(LocalPlayer player) {
-        double baseDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        double weaponDamage = getWeaponDamage(player.getMainHandItem());
+        double damage = player.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
+        damage += getWeaponDamage(player.getMainHandItem());
 
         MobEffectInstance strength = player.getEffect(MobEffects.STRENGTH);
-        double strengthBonus = (strength != null) ? 3.0D * (strength.getAmplifier() + 1) : 0.0D;
+        if (strength != null) {
+            damage += 3.0D * (strength.getAmplifier() + 1);
+        }
 
         MobEffectInstance weakness = player.getEffect(MobEffects.WEAKNESS);
-        double weaknessPenalty = (weakness != null) ? 4.0D * (weakness.getAmplifier() + 1) : 0.0D;
+        if (weakness != null) {
+            damage -= 4.0D * (weakness.getAmplifier() + 1);
+        }
 
-        return Math.max(0.0D, baseDamage + weaponDamage + strengthBonus - weaknessPenalty);
+        return damage > 0.0D;
     }
 
     @Unique
     private double getWeaponDamage(ItemStack item) {
-        if (item.isEmpty()) {
-            return 0.0D;
-        }
-
-        damageAdder.reset();
+        if (item.isEmpty()) return 0.0D;
+        final double[] sum = {0.0D};
         item.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
             if (Attributes.ATTACK_DAMAGE.equals(attribute)) {
-                damageAdder.add(modifier.amount());
+                sum[0] += modifier.amount();
             }
         });
-        return damageAdder.sum();
+        return sum[0];
     }
 
     @Unique
