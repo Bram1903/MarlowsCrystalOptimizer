@@ -1,5 +1,7 @@
 package com.deathmotion.marlowcrystal.handler;
 
+import com.deathmotion.marlowcrystal.MarlowCrystal;
+import com.deathmotion.marlowcrystal.cache.OptOutCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -18,15 +20,13 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.concurrent.atomic.DoubleAdder;
-
 public class InteractHandler implements ServerboundInteractPacket.Handler {
 
     @Unique
     private final Minecraft client;
 
     @Unique
-    private final DoubleAdder damageAdder = new DoubleAdder();
+    private OptOutCache optOutCache;
 
     public InteractHandler(Minecraft client) {
         this.client = client;
@@ -42,6 +42,13 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
 
     @Override
     public void onAttack() {
+        if (optOutCache == null) {
+            optOutCache = MarlowCrystal.getInstance().getOptOutCache();
+        }
+        if (optOutCache.isOptedOut()) {
+            return;
+        }
+
         HitResult hitResult = client.hitResult;
         if (!(hitResult instanceof EntityHitResult entityHitResult)) {
             return;
@@ -59,51 +66,47 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
 
         if (canDestroyCrystal(player)) {
             destroyCrystal(crystal);
+            retargetCrosshair(crystal);
         }
+    }
+
+    private void retargetCrosshair(EndCrystal crystal) {
+        LocalPlayer player = client.player;
+        if (player == null || client.hitResult == null || client.crosshairPickEntity != crystal) {
+            return;
+        }
+
+        HitResult retraced = player.pick(player.blockInteractionRange(), 1.0F, false);
+        client.crosshairPickEntity = null;
+        client.hitResult = retraced;
     }
 
     private boolean canDestroyCrystal(LocalPlayer player) {
-        MobEffectInstance weakness = player.getEffect(MobEffects.WEAKNESS);
-
-        if (weakness == null) {
-            return true;
-        }
-
-        double baseDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        double weaknessPenalty = 4.0D * (weakness.getAmplifier() + 1);
-
-        if (baseDamage > weaknessPenalty + 5.0D) {
-            return true;
-        }
-
-        return calculateTotalDamage(player) > 0.0D;
-    }
-
-    private double calculateTotalDamage(LocalPlayer player) {
-        double baseDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        double weaponDamage = getWeaponDamage(player.getMainHandItem());
+        double damage = player.getAttributeBaseValue(Attributes.ATTACK_DAMAGE);
+        damage += getWeaponDamage(player.getMainHandItem());
 
         MobEffectInstance strength = player.getEffect(MobEffects.STRENGTH);
-        double strengthBonus = strength != null ? 3.0D * (strength.getAmplifier() + 1) : 0.0D;
+        if (strength != null) {
+            damage += 3.0D * (strength.getAmplifier() + 1);
+        }
 
         MobEffectInstance weakness = player.getEffect(MobEffects.WEAKNESS);
-        double weaknessPenalty = weakness != null ? 4.0D * (weakness.getAmplifier() + 1) : 0.0D;
+        if (weakness != null) {
+            damage -= 4.0D * (weakness.getAmplifier() + 1);
+        }
 
-        return Math.max(0.0D, baseDamage + weaponDamage + strengthBonus - weaknessPenalty);
+        return damage > 0.0D;
     }
 
     private double getWeaponDamage(ItemStack item) {
-        if (item.isEmpty()) {
-            return 0.0D;
-        }
-
-        damageAdder.reset();
+        if (item.isEmpty()) return 0.0D;
+        final double[] sum = {0.0D};
         item.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
             if (Attributes.ATTACK_DAMAGE.equals(attribute)) {
-                damageAdder.add(modifier.amount());
+                sum[0] += modifier.amount();
             }
         });
-        return damageAdder.sum();
+        return sum[0];
     }
 
     private void destroyCrystal(Entity crystal) {
