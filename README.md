@@ -48,7 +48,7 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 
 | Platform | Supported Versions |
 |----------|--------------------|
-| Fabric   | 1.19 - 26.1.2      |
+| Fabric   | 1.19 - 26.2        |
 
 ## Installation
 
