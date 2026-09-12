@@ -8,7 +8,6 @@ import com.deathmotion.marlowcrystal.util.ConnectionUtil;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -53,7 +52,7 @@ public final class OptOutPacketListener {
             }
 
             if (!cache.hasNotified(key)) {
-                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS, Util.backgroundExecutor()).execute(() -> client.execute(() -> {
+                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS).execute(() -> client.execute(() -> {
                     if (client.player == null) return;
                     if (cache.hasNotified(key)) return;
 
