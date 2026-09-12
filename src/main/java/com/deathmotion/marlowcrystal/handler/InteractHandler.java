@@ -1,7 +1,7 @@
 package com.deathmotion.marlowcrystal.handler;
 
 import com.deathmotion.marlowcrystal.MarlowCrystal;
-import com.deathmotion.marlowcrystal.cache.OptOutCache;
+import com.deathmotion.marlowcrystal.state.OptOutState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -25,7 +25,7 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
     private final Minecraft client;
 
     @Unique
-    private OptOutCache optOutCache;
+    private OptOutState optOutState;
 
     public InteractHandler(Minecraft client) {
         this.client = client;
@@ -41,10 +41,10 @@ public class InteractHandler implements ServerboundInteractPacket.Handler {
 
     @Override
     public void onAttack() {
-        if (optOutCache == null) {
-            optOutCache = MarlowCrystal.getInstance().getOptOutCache();
+        if (optOutState == null) {
+            optOutState = MarlowCrystal.getInstance().getOptOutState();
         }
-        if (optOutCache.isOptedOut()) {
+        if (optOutState.isOptedOut()) {
             return;
         }
 
