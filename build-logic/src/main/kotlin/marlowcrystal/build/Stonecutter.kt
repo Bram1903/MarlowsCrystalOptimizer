@@ -18,17 +18,6 @@ fun Project.stonecutterPropertyOrNull(key: String): String? = sc.properties.getO
 fun Project.stonecutterList(vararg path: String): List<String> =
     sc.properties.rawOrNull(*path)?.asList().orEmpty().map { it.toString() }
 
-val Project.minecraftDependency: String
-    get() {
-        val min = stonecutterProperty("mod.mc_min")
-        val max = stonecutterPropertyOrNull("mod.mc_max")
-        return when (max) {
-            null -> ">=$min"
-            min -> min
-            else -> ">=$min <=$max"
-        }
-    }
-
 val Project.requiredJava: JavaVersion
     get() = when {
         sc.current.parsed >= "26.1" -> JavaVersion.VERSION_25

@@ -26,8 +26,6 @@ the first four fields keeps working with newer clients.
 | `snapshot`       | Boolean | 1.1.0 | Snapshot build                                       |
 | `commit`         | String  | 1.1.1 | Full git commit hash, empty when unknown             |
 | `dirty`          | Boolean | 1.1.1 | Built with uncommitted changes                       |
-| `minecraftMin`   | String  | 1.1.1 | Lowest supported Minecraft version, e.g. `1.21.5`    |
-| `minecraftMax`   | String  | 1.1.1 | Highest supported Minecraft version, empty if open   |
 | `buildTimestamp` | Long    | 1.1.1 | Build time in milliseconds since the Unix epoch      |
 
 The version tells which fields follow. Clients older than 1.1.1 stop after `snapshot`. Ignore bytes after the fields
