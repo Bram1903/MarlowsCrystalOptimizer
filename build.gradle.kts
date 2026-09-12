@@ -131,8 +131,12 @@ tasks {
             "loader" to sc.properties.get<String>("deps.fabric_loader"),
         )
         props.forEach { (k, v) -> inputs.property(k, v) }
+        inputs.property("yacl", yaclVersion != null)
 
-        filesMatching("fabric.mod.json") { expand(props) }
+        filesMatching("fabric.mod.json") {
+            expand(props)
+            if (yaclVersion == null) filter { line -> line.takeUnless { "yet_another_config_lib_v3" in it } }
+        }
         filesMatching("*.mixins.json") { expand("java" to "JAVA_${requiredJava.majorVersion}") }
     }
 

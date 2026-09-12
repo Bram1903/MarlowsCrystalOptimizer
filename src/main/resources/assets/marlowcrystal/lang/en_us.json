@@ -1,0 +1,6 @@
+{
+  "marlowcrystal.config.title": "Marlow's Crystal Optimizer",
+  "marlowcrystal.config.category.updates": "Updates",
+  "marlowcrystal.config.update_source": "Update Source",
+  "marlowcrystal.config.update_source.description": "Where to look for new versions. Modrinth only offers releases built for your Minecraft version, GitHub follows the latest release."
+}

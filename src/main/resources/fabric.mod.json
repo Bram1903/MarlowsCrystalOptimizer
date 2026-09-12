@@ -19,6 +19,9 @@
   "entrypoints": {
     "client": [
       "com.deathmotion.marlowcrystal.MarlowCrystal"
+    ],
+    "modmenu": [
+      "com.deathmotion.marlowcrystal.integration.modmenu.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -28,5 +31,9 @@
     "fabricloader": ">=${loader}",
     "minecraft": "${minecraft}",
     "fabric-api": "*"
+  },
+  "suggests": {
+    "yet_another_config_lib_v3": "*",
+    "modmenu": "*"
   }
 }
