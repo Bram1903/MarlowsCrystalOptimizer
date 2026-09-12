@@ -7,9 +7,9 @@ import com.deathmotion.marlowcrystal.versioning.MCOVersions;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class UpdateService {
 
@@ -17,7 +17,7 @@ public final class UpdateService {
 
     private final Logger logger = new Logger();
 
-    private final Map<UpdateSource, UpdateResult> results = new EnumMap<>(UpdateSource.class);
+    private final Map<UpdateSource, UpdateResult> results = new ConcurrentHashMap<>();
 
     private UpdateService() {
     }
@@ -54,6 +54,14 @@ public final class UpdateService {
             Thread.currentThread().interrupt();
             return UpdateResult.none();
         }
+    }
+
+    public UpdateResult latest() {
+        return results.getOrDefault(ModConfig.getInstance().getUpdateSource(), UpdateResult.none());
+    }
+
+    public boolean hasChecked() {
+        return !results.isEmpty();
     }
 
     private UpdateResult query(UpdateSource source) throws InterruptedException {
