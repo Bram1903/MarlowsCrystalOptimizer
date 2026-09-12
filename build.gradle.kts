@@ -96,6 +96,7 @@ publishMods {
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         projectId = "ozpC8eDC"
         minecraftVersions.addAll(releaseTargets)
+        requires("fabric-api")
     }
 
     github {
