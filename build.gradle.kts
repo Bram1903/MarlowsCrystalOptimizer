@@ -129,6 +129,7 @@ tasks {
             "version" to sc.properties.get<String>("mod.version"),
             "minecraft" to sc.properties.get<String>("mod.mc_compat"),
             "loader" to sc.properties.get<String>("deps.fabric_loader"),
+            "fabric_api" to if (sc.current.parsed < "1.20.2") "fabric" else "fabric-api",
         )
         props.forEach { (k, v) -> inputs.property(k, v) }
         inputs.property("yacl", yaclVersion != null)
