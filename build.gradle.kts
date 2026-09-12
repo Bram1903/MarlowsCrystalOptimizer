@@ -21,6 +21,59 @@ val requiredJava: JavaVersion = when {
     else -> JavaVersion.VERSION_17
 }
 
+fun git(vararg arguments: String): String =
+    runCatching {
+        providers.exec {
+            workingDir = rootProject.projectDir
+            commandLine("git", *arguments)
+            isIgnoreExitValue = true
+        }.standardOutput.asText.get().trim()
+    }.getOrDefault("")
+
+val modVersion = sc.properties.get<String>("mod.version")
+val modVersionParts = requireNotNull(Regex("""(\d+)\.(\d+)\.(\d+)(-SNAPSHOT)?""").matchEntire(modVersion)) {
+    "mod.version must be major.minor.patch with an optional -SNAPSHOT suffix, found $modVersion"
+}
+val gitCommit: String? = git("rev-parse", "HEAD").ifEmpty { null }
+val gitDirty: Boolean = gitCommit != null && git("status", "--porcelain", "--untracked-files=no").isNotEmpty()
+
+val generateVersions = tasks.register("generateVersions") {
+    fun quoted(value: String?) = value?.let { "\"$it\"" } ?: "null"
+
+    val (major, minor, patch, snapshot) = modVersionParts.destructured
+    val source = """
+        package com.deathmotion.marlowcrystal.versioning;
+
+        public final class MCOVersions {
+
+            public static final String RAW = "$modVersion";
+            public static final String MINECRAFT_RANGE = "${sc.properties.get<String>("mod.mc_range")}";
+            public static final String COMMIT = ${quoted(gitCommit)};
+            public static final boolean DIRTY = $gitDirty;
+            public static final MCOVersion CURRENT = new MCOVersion($major, $minor, $patch, ${snapshot.isNotEmpty()}, ${quoted(gitCommit?.take(7))});
+            public static final MCOVersion UNKNOWN = MCOVersion.of(0, 0, 0);
+
+            private MCOVersions() {
+                throw new IllegalStateException();
+            }
+        }
+    """.trimIndent() + "\n"
+
+    val target = layout.buildDirectory.dir("generated/sources/versions/main")
+    inputs.property("source", source)
+    outputs.dir(target)
+
+    doLast {
+        val file = target.get().file("com/deathmotion/marlowcrystal/versioning/MCOVersions.java").asFile
+        file.parentFile.mkdirs()
+        file.writeText(source)
+    }
+}
+
+sourceSets.main {
+    java.srcDir(generateVersions)
+}
+
 dependencies {
     fun fapi(vararg modules: String) {
         for (it in modules) modImplementation(fabricApi.module(it, sc.properties.get<String>("deps.fabric_api")))

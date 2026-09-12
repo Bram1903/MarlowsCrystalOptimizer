@@ -13,7 +13,8 @@ import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
 import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
 import com.deathmotion.marlowcrystal.state.OptOutState;
 import com.deathmotion.marlowcrystal.util.Logger;
-import com.deathmotion.marlowcrystal.util.VersionUtil;
+import com.deathmotion.marlowcrystal.versioning.MCOVersion;
+import com.deathmotion.marlowcrystal.versioning.MCOVersions;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -65,7 +66,8 @@ public class MarlowCrystal implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        versionPacket = VersionUtil.createVersionPacket();
+        MCOVersion version = MCOVersions.CURRENT;
+        versionPacket = new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot());
 
         //? if >=1.20.5 {
         PayloadTypeRegistry.clientboundConfiguration().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
@@ -82,6 +84,9 @@ public class MarlowCrystal implements ClientModInitializer {
         OptOutPacketListener.register();
         ChallengePacketListener.register();
 
-        logger.info("Mod initialized");
+        String commit = version.commit();
+        logger.info("Mod initialized, version " + version.toDisplayString()
+                + " for Minecraft " + MCOVersions.MINECRAFT_RANGE
+                + (commit != null ? " (" + commit + (MCOVersions.DIRTY ? ", dirty" : "") + ")" : ""));
     }
 }
