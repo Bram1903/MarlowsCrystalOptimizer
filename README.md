@@ -190,6 +190,29 @@ Supported versions and their compatibility ranges are declared in `stonecutter.p
 That file is the single source of truth: it drives the jar name, the `depends.minecraft` range in
 `fabric.mod.json`, and the release targets.
 
+## Releasing
+
+Publishing is a Gradle task rather than a CI job, driven by two environment variables:
+
+| Variable | Used for |
+|----------|----------|
+| `MODRINTH_TOKEN` | Uploading one Modrinth version per supported range |
+| `GITHUB_TOKEN` | Creating the GitHub release and attaching every jar to it |
+
+```bash
+./gradlew publishMods
+```
+
+That creates a single GitHub release tagged `v<mod.version>` with all jars attached, and one Modrinth
+version per supported range. The game versions each Modrinth upload is tagged with come from
+`mod.mc_releases` in `stonecutter.properties.toml`, and the release notes come from `CHANGELOG.md`.
+
+Set `MCO_PUBLISH_DRY_RUN` to any value to print what would be published without uploading anything:
+
+```bash
+MCO_PUBLISH_DRY_RUN=1 ./gradlew publishMods
+```
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).

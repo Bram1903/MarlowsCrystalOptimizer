@@ -1,9 +1,19 @@
+import me.modmuss50.mpp.ReleaseType
+
 plugins {
     id("dev.kikugie.loom-back-compat")
+    id("me.modmuss50.mod-publish-plugin")
 }
 
 version = "${property("mod.version")}+mc${property("mod.mc_range")}"
 base.archivesName = property("mod.archive") as String
+
+val releaseTargets: List<String> = sc.properties.rawOrNull("mod", "mc_releases")
+    ?.asList().orEmpty().map { it.toString() }
+
+require(releaseTargets.isNotEmpty()) {
+    "mod.mc_releases is missing for ${sc.current.version} in stonecutter.properties.toml"
+}
 
 val requiredJava: JavaVersion = when {
     sc.current.parsed >= "26.1" -> JavaVersion.VERSION_25
@@ -70,5 +80,26 @@ tasks {
         dependsOn("build")
         from(loomx.modJar.flatMap { it.archiveFile })
         into(rootProject.layout.buildDirectory.dir("libs"))
+    }
+}
+
+publishMods {
+    file = loomx.modJar.flatMap { it.archiveFile }
+    version = project.version.toString()
+    displayName = "${sc.properties.get<String>("mod.name")} ${sc.properties.get<String>("mod.version")} for ${sc.properties.get<String>("mod.mc_range")}"
+    changelog = providers.fileContents(rootProject.layout.projectDirectory.file("CHANGELOG.md")).asText
+    type = ReleaseType.STABLE
+    modLoaders.add("fabric")
+    dryRun = providers.environmentVariable("MCO_PUBLISH_DRY_RUN").isPresent
+
+    modrinth {
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        projectId = "ozpC8eDC"
+        minecraftVersions.addAll(releaseTargets)
+    }
+
+    github {
+        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        parent(rootProject.tasks.named("publishGithub"))
     }
 }
