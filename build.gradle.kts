@@ -74,6 +74,13 @@ sourceSets.main {
     java.srcDir(generateVersions)
 }
 
+val yaclVersion: String? = sc.properties.getOrNull<String>("deps.yacl")
+
+repositories {
+    maven("https://maven.terraformersmc.com/releases") { name = "TerraformersMC" }
+    maven("https://maven.isxander.dev/releases") { name = "Xander Maven" }
+}
+
 dependencies {
     fun fapi(vararg modules: String) {
         for (it in modules) modImplementation(fabricApi.module(it, sc.properties.get<String>("deps.fabric_api")))
@@ -84,6 +91,11 @@ dependencies {
 
     modImplementation("net.fabricmc:fabric-loader:${sc.properties.get<String>("deps.fabric_loader")}")
     fapi("fabric-networking-api-v1")
+
+    modCompileOnly("com.terraformersmc:modmenu:${sc.properties.get<String>("deps.modmenu")}") { isTransitive = false }
+    if (yaclVersion != null) {
+        modCompileOnly("dev.isxander:yet-another-config-lib:$yaclVersion") { isTransitive = false }
+    }
 }
 
 loom {
