@@ -59,11 +59,9 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 
 ## Opt-Out Support
 
-When the client receives an opt-out packet, the mod is disabled for the server identified by the server IP address. The
-opt-out remains active across
-reconnections and backend switches behind a proxy that shares the same address and therefore only needs to be sent once.
-Once the player disconnects from the server network, the client must be considered no longer opted out and the packet
-must be sent again on the next connection.
+When the client receives an opt-out packet, the mod is disabled for the rest of that connection. A backend switch behind
+a proxy keeps the connection itself open, so the opt-out survives it and only needs to be sent once per connection.
+Once the player disconnects, the opt-out is cleared and the packet must be sent again on the next connection.
 
 ### Plugin Messaging Protocol
 
@@ -137,7 +135,7 @@ private void handleRegister(byte[] data) {
 
 ### Client side opt-out showcase
 
-The client side opt-out message is only shown the first time the player joins the server after starting the game.
+The client side opt-out message is shown once per connection.
 
 ![opt_out_message.png](docs/images/opt_out_message.png)
 
