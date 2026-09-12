@@ -144,6 +144,9 @@ The client side opt-out message is shown once per connection.
 
 ## Compiling From Source
 
+All supported Minecraft versions are built from this one branch. [Stonecutter](https://stonecutter.kikugie.dev/)
+resolves the per-version differences at build time, so there is no branch to switch.
+
 ### Prerequisites
 
 - Java Development Kit (JDK) 21 or higher
@@ -159,23 +162,33 @@ The client side opt-out message is shown once per connection.
    ```bash
    cd MarlowsCrystalOptimizer
    ```
-3. **Compile the Source Code**:
-   Use the Gradle wrapper to build the plugin:
+3. **Build every supported version**:
+   Jars are written to `build/libs/`, one per supported Minecraft range.
 
    <details>
    <summary><strong>Linux / macOS</strong></summary>
 
    ```bash
-   ./gradlew build
+   ./gradlew buildAndCollect
    ```
    </details>
    <details>
    <summary><strong>Windows</strong></summary>
 
    ```cmd
-   .\gradlew build
+   .\gradlew buildAndCollect
    ```
    </details>
+
+### Working on a single version
+
+`src/` is shown for one Minecraft version at a time. Switch which one with the
+`Set active project to ...` Gradle task, and run `Reset active project` before committing.
+To build just one, use `./gradlew 1.21.5:build`.
+
+Supported versions and their compatibility ranges are declared in `stonecutter.properties.toml`.
+That file is the single source of truth: it drives the jar name, the `depends.minecraft` range in
+`fabric.mod.json`, and the release targets.
 
 ## License
 
