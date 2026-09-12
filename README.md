@@ -25,7 +25,8 @@ using:
 * **Minecraft 1.19 – 1.21.4:** Requires **Fabric Loader `0.16.5` or newer**
 * **Minecraft 1.21.5 – 1.21.10:** Requires **Fabric Loader `0.16.10` or newer**
 * **Minecraft 1.21.11:** Requires **Fabric Loader `0.17.3` or newer**
-* **Minecraft 26.1 and above:** Requires **Fabric Loader `0.18.4` or newer**
+* **Minecraft 26.1 – 26.2:** Requires **Fabric Loader `0.18.4` or newer**
+* **Minecraft 26.3 and above:** Requires **Fabric Loader `0.19.5` or newer**
 
 Make sure you have the correct Fabric Loader version installed to ensure full compatibility.
 
@@ -48,7 +49,7 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 
 | Platform | Supported Versions |
 |----------|--------------------|
-| Fabric   | 1.19 - 26.2        |
+| Fabric   | 1.19 - 26.3        |
 
 ## Installation
 
