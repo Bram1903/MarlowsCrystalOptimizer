@@ -6,6 +6,6 @@ import net.minecraft.resources.ResourceLocation;
 public final class ModPackets {
 
     public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MarlowCrystal.MOD_ID, path);
+        return ResourceLocation.tryParse(MarlowCrystal.MOD_ID + ":" + path);
     }
 }
