@@ -17,10 +17,10 @@ import org.jetbrains.annotations.NotNull;
 
 //? if >=1.20.2 {
 public record VersionPacket(int major, int minor, int patch, boolean snapshot, int format, String commit, boolean dirty,
-                            String minecraftRange) implements CustomPacketPayload {
+                            String minecraftRange, long buildTimestamp) implements CustomPacketPayload {
 //?} else {
 /*public record VersionPacket(int major, int minor, int patch, boolean snapshot, int format, String commit, boolean dirty,
-                            String minecraftRange) {
+                            String minecraftRange, long buildTimestamp) {
 *///?}
 
     public static final int FORMAT = 1;
@@ -32,8 +32,9 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, i
     public static VersionPacket current() {
         MCOVersion version = MCOVersions.CURRENT;
         String commit = MCOVersions.COMMIT;
-        return new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot(),
-                FORMAT, commit != null ? commit : "", MCOVersions.DIRTY, MCOVersions.MINECRAFT_RANGE);
+        return new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot(), FORMAT,
+                commit != null ? commit : "", MCOVersions.DIRTY, MCOVersions.MINECRAFT_RANGE,
+                MCOVersions.BUILD_TIMESTAMP.toEpochMilli());
     }
 
     private static void encode(FriendlyByteBuf buf, VersionPacket packet) {
@@ -45,6 +46,7 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, i
         buf.writeUtf(packet.commit(), COMMIT_MAX_LENGTH);
         buf.writeBoolean(packet.dirty());
         buf.writeUtf(packet.minecraftRange(), MINECRAFT_RANGE_MAX_LENGTH);
+        buf.writeLong(packet.buildTimestamp());
     }
 
     //? if >=1.20.5 {
@@ -63,11 +65,12 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, i
             int patch = buf.readVarInt();
             boolean snapshot = buf.readBoolean();
             if (!buf.isReadable()) {
-                return new VersionPacket(major, minor, patch, snapshot, 0, "", false, "");
+                return new VersionPacket(major, minor, patch, snapshot, 0, "", false, "", 0L);
             }
 
             VersionPacket packet = new VersionPacket(major, minor, patch, snapshot, buf.readVarInt(),
-                    buf.readUtf(COMMIT_MAX_LENGTH), buf.readBoolean(), buf.readUtf(MINECRAFT_RANGE_MAX_LENGTH));
+                    buf.readUtf(COMMIT_MAX_LENGTH), buf.readBoolean(), buf.readUtf(MINECRAFT_RANGE_MAX_LENGTH),
+                    buf.readLong());
             buf.skipBytes(buf.readableBytes());
             return packet;
         }

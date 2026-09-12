@@ -87,6 +87,7 @@ public class MarlowCrystal implements ClientModInitializer {
         String commit = version.commit();
         logger.info("Mod initialized, version " + version.toDisplayString()
                 + " for Minecraft " + MCOVersions.MINECRAFT_RANGE
+                + " built " + MCOVersions.BUILD_TIMESTAMP
                 + (commit != null ? " (" + commit + (MCOVersions.DIRTY ? ", dirty" : "") + ")" : ""));
     }
 }
