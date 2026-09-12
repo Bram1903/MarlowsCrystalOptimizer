@@ -36,6 +36,7 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
     - [Prerequisites](#prerequisites)
 - [Supported Platforms & Versions](#supported-platforms--versions)
 - [Installation](#installation)
+- [Optional Integrations](#optional-integrations)
 - [Opt-Out Support](#opt-out-support)
     - [Plugin Messaging Protocol](#plugin-messaging-protocol)
     - [Example Implementation (PacketEvents)](#example-implementation-packetevents)
@@ -57,6 +58,20 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
    the [GitHub release page](https://github.com/Bram1903/MarlowsCrystalOptimizer/releases/latest).
 2. **Install**: Place the mod in your `mods` folder, located in your `.minecraft` directory (`%appdata%`).
 3. **Launch**: Start the game with the Fabric Loader profile.
+
+## Optional Integrations
+
+Marlow's Crystal Optimizer installs and runs on its own. The mods below are optional and only add extra surfaces when
+they are present.
+
+| Mod                                                                  | Adds                                                      | Minecraft |
+|----------------------------------------------------------------------|-----------------------------------------------------------|-----------|
+| [Mod Menu](https://modrinth.com/mod/modmenu)                          | An update badge in the mod list when a newer release exists | 1.20.5+   |
+| [YetAnotherConfigLib](https://modrinth.com/mod/yacl) with Mod Menu   | A settings screen to pick the update source               | 1.20.2+   |
+
+The update check never runs at startup on its own. It only runs when a surface such as Mod Menu asks for it, and then
+once per session. Modrinth is the default source and only offers releases built for your Minecraft version. GitHub can
+be selected instead and follows the latest release. The setting is stored in `config/marlowcrystal.json`.
 
 ## Opt-Out Support
 
