@@ -1,11 +1,11 @@
 package com.deathmotion.marlowcrystal;
 
-import com.deathmotion.marlowcrystal.cache.OptOutCache;
 import com.deathmotion.marlowcrystal.listener.ChallengePacketListener;
 import com.deathmotion.marlowcrystal.listener.ConnectEventListener;
 import com.deathmotion.marlowcrystal.listener.DisconnectEventListener;
 import com.deathmotion.marlowcrystal.listener.OptOutPacketListener;
 import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
+import com.deathmotion.marlowcrystal.state.OptOutState;
 import com.deathmotion.marlowcrystal.util.Logger;
 import com.deathmotion.marlowcrystal.util.VersionUtil;
 import lombok.Getter;
@@ -32,7 +32,7 @@ public class MarlowCrystal implements ClientModInitializer {
     private static Logger logger;
 
     @Getter
-    private final OptOutCache optOutCache;
+    private final OptOutState optOutState;
 
     @Getter
     private VersionPacket versionPacket;
@@ -40,7 +40,7 @@ public class MarlowCrystal implements ClientModInitializer {
     public MarlowCrystal() {
         instance = this;
         logger = new Logger();
-        optOutCache = new OptOutCache();
+        optOutState = new OptOutState();
     }
 
     @Override
