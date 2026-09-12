@@ -54,11 +54,19 @@ public final class CrystalBreaker {
         }
 
         final double[] sum = {0.0D};
+        //? if >=1.20.5 {
         item.forEachModifier(EquipmentSlot.MAINHAND, (attribute, modifier) -> {
             if (Attributes.ATTACK_DAMAGE.equals(attribute)) {
                 sum[0] += modifier.amount();
             }
         });
+        //?} else {
+        /*item.getAttributeModifiers(EquipmentSlot.MAINHAND).forEach((attribute, modifier) -> {
+            if (Attributes.ATTACK_DAMAGE.equals(attribute)) {
+                sum[0] += modifier.getAmount();
+            }
+        });
+        *///?}
         return sum[0];
     }
 
@@ -73,7 +81,15 @@ public final class CrystalBreaker {
             return;
         }
 
+        //? if >=1.20.5 {
         HitResult retraced = player.pick(player.blockInteractionRange(), 1.0F, false);
+        //?} else {
+        /*if (client.gameMode == null) {
+            return;
+        }
+
+        HitResult retraced = player.pick(client.gameMode.getPickRange(), 1.0F, false);
+        *///?}
         client.crosshairPickEntity = null;
         client.hitResult = retraced;
     }

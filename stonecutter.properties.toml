@@ -6,6 +6,20 @@ mod.archive = "marlows-crystal-optimizer"
 
 loomx.loom_version = "1.17-SNAPSHOT"
 
+["1.19"]
+mod.mc_compat = ">=1.19 <=1.20.1"
+mod.mc_range = "1.19-1.20.1"
+mod.mc_releases = ["1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"]
+deps.fabric_loader = "0.16.5"
+deps.fabric_api = "0.58.0+1.19"
+
+["1.20.4"]
+mod.mc_compat = ">=1.20.2 <=1.20.4"
+mod.mc_range = "1.20.2-1.20.4"
+mod.mc_releases = ["1.20.2", "1.20.3", "1.20.4"]
+deps.fabric_loader = "0.16.5"
+deps.fabric_api = "0.97.3+1.20.4"
+
 ["1.21"]
 mod.mc_compat = ">=1.20.5 <=1.21.4"
 mod.mc_range = "1.20.5-1.21.4"

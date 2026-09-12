@@ -5,8 +5,11 @@ plugins {
 version = "${property("mod.version")}+mc${property("mod.mc_range")}"
 base.archivesName = property("mod.archive") as String
 
-val requiredJava: JavaVersion =
-    if (sc.current.parsed >= "26.1") JavaVersion.VERSION_25 else JavaVersion.VERSION_21
+val requiredJava: JavaVersion = when {
+    sc.current.parsed >= "26.1" -> JavaVersion.VERSION_25
+    sc.current.parsed >= "1.20.5" -> JavaVersion.VERSION_21
+    else -> JavaVersion.VERSION_17
+}
 
 dependencies {
     fun fapi(vararg modules: String) {

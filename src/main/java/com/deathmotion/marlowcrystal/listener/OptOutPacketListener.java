@@ -4,9 +4,15 @@ import com.deathmotion.marlowcrystal.MarlowCrystal;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutAckPacket;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
 import com.deathmotion.marlowcrystal.state.OptOutState;
+//? if <1.20.5 {
+/*import io.netty.buffer.Unpooled;
+*///?}
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+//? if <1.20.5 {
+/*import net.minecraft.network.FriendlyByteBuf;
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -51,19 +57,32 @@ public final class OptOutPacketListener {
         *///?}
     }
 
+    private static void handleOptOut(Minecraft client) {
+        OptOutState state = MarlowCrystal.getInstance().getOptOutState();
+
+        state.markOptedOut();
+
+        if (state.claimNotification()) {
+            CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS)
+                    .execute(() -> client.execute(() -> showDisabledMessage(client)));
+        }
+    }
+
     public static void register() {
+        //? if >=1.20.5 {
         ClientPlayNetworking.registerGlobalReceiver(OptOutPacket.TYPE, (payload, context) -> {
-            Minecraft client = context.client();
-            OptOutState state = MarlowCrystal.getInstance().getOptOutState();
-
-            state.markOptedOut();
-
-            if (state.claimNotification()) {
-                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS)
-                        .execute(() -> client.execute(() -> showDisabledMessage(client)));
-            }
+            handleOptOut(context.client());
 
             ClientPlayNetworking.send(OptOutAckPacket.INSTANCE);
         });
+        //?} else {
+        /*ClientPlayNetworking.registerGlobalReceiver(OptOutPacket.ID, (client, handler, buf, sender) -> {
+            handleOptOut(client);
+
+            FriendlyByteBuf ackBuf = new FriendlyByteBuf(Unpooled.buffer());
+            OptOutAckPacket.INSTANCE.write(ackBuf);
+            ClientPlayNetworking.send(OptOutAckPacket.ID, ackBuf);
+        });
+        *///?}
     }
 }
