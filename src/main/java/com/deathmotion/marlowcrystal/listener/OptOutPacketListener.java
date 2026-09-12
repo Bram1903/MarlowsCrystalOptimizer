@@ -1,10 +1,9 @@
 package com.deathmotion.marlowcrystal.listener;
 
 import com.deathmotion.marlowcrystal.MarlowCrystal;
-import com.deathmotion.marlowcrystal.cache.OptOutCache;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutAckPacket;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
-import com.deathmotion.marlowcrystal.util.ConnectionUtil;
+import com.deathmotion.marlowcrystal.state.OptOutState;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -39,22 +38,14 @@ public final class OptOutPacketListener {
     public static void register() {
         ClientPlayNetworking.registerGlobalReceiver(OptOutPacket.TYPE, (payload, context) -> {
             Minecraft client = context.client();
-            OptOutCache cache = MarlowCrystal.getInstance().getOptOutCache();
+            OptOutState state = MarlowCrystal.getInstance().getOptOutState();
 
-            String key = ConnectionUtil.currentServerKey(client);
+            state.markOptedOut();
 
-            if (key != null) {
-                cache.markOptedOut(key);
-            } else {
-                cache.setOptedOut(true);
-            }
-
-            if (!cache.hasNotified(key)) {
+            if (state.claimNotification()) {
                 CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS).execute(() -> client.execute(() -> {
                     if (client.player == null) return;
-                    if (cache.hasNotified(key)) return;
 
-                    cache.markNotified(key);
                     client.player.displayClientMessage(optimizerDisabledMessage(), false);
                 }));
             }
