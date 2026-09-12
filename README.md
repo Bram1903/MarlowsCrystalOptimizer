@@ -90,6 +90,25 @@ Once the player disconnects, the opt-out is cleared and the packet must be sent 
 |    3 | Server → Client | `marlowcrystal:opt_out`     | Empty                                                                                                                                                                   |
 |    4 | Client → Server | `marlowcrystal:opt_out_ack` | Empty                                                                                                                                                                   |
 
+#### Version Payload
+
+`marlowcrystal:version` uses Minecraft's packet encoding. Fields are only ever appended, so a server that reads the
+first four fields keeps working with newer clients.
+
+| Field            | Type    | Since | Description                                                               |
+|------------------|---------|-------|---------------------------------------------------------------------------|
+| `major`          | VarInt  | 1.1.0 | Major version                                                             |
+| `minor`          | VarInt  | 1.1.0 | Minor version                                                             |
+| `patch`          | VarInt  | 1.1.0 | Patch version                                                             |
+| `snapshot`       | Boolean | 1.1.0 | Whether this is a snapshot build                                          |
+| `format`         | VarInt  | 1.1.1 | Layout of the fields that follow, currently `1`                           |
+| `commit`         | String  | 1.1.1 | Full git commit hash the build was made from, empty when unknown          |
+| `dirty`          | Boolean | 1.1.1 | Whether the build contained uncommitted changes                           |
+| `minecraftRange` | String  | 1.1.1 | Minecraft versions the jar was built for, for example `1.20.5-1.21.4`     |
+
+Strings are a VarInt byte length followed by UTF-8. Clients older than 1.1.1 stop after `snapshot`, so only read the
+fields from `format` onwards when bytes remain, and ignore anything after the fields you know.
+
 #### Legacy Clients (pre-1.0.5)
 
 | Direction       | Channel         | Description            |

@@ -67,7 +67,7 @@ public class MarlowCrystal implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         MCOVersion version = MCOVersions.CURRENT;
-        versionPacket = new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot());
+        versionPacket = VersionPacket.current();
 
         //? if >=1.20.5 {
         PayloadTypeRegistry.clientboundConfiguration().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
