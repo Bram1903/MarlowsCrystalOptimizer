@@ -26,13 +26,29 @@ public final class OptOutPacketListener {
                 .append(Component.literal("• This may be to enforce server rules or avoid compatibility issues.\n").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal("\nThis only applies while you are connected to this server.").withStyle(ChatFormatting.DARK_GRAY));
 
+        //? if >=1.21.5 {
         Style hoverStyle = Style.EMPTY.withHoverEvent(new HoverEvent.ShowText(hover));
+        //?} else {
+        /*Style hoverStyle = Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
+        *///?}
         Component message = Component.literal("Optimizer disabled on this server.")
                 .withStyle(hoverStyle.withColor(ChatFormatting.RED));
 
         return MarlowCrystal.PREFIX.copy()
                 .withStyle(hoverStyle)
                 .append(message);
+    }
+
+    private static void showDisabledMessage(Minecraft client) {
+        if (client.player == null) {
+            return;
+        }
+
+        //? if >=26.1 {
+        client.player.sendSystemMessage(optimizerDisabledMessage());
+        //?} else {
+        /*client.player.displayClientMessage(optimizerDisabledMessage(), false);
+        *///?}
     }
 
     public static void register() {
@@ -43,11 +59,8 @@ public final class OptOutPacketListener {
             state.markOptedOut();
 
             if (state.claimNotification()) {
-                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS).execute(() -> client.execute(() -> {
-                    if (client.player == null) return;
-
-                    client.player.sendSystemMessage(optimizerDisabledMessage());
-                }));
+                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS)
+                        .execute(() -> client.execute(() -> showDisabledMessage(client)));
             }
 
             ClientPlayNetworking.send(OptOutAckPacket.INSTANCE);

@@ -4,7 +4,7 @@ import com.deathmotion.marlowcrystal.packet.ModPackets;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public record VersionPacket(int major, int minor, int patch, boolean snapshot) implements CustomPacketPayload {
 
@@ -31,7 +31,7 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot) i
     };
 
     @Override
-    public @NonNull Type<VersionPacket> type() {
+    public @NotNull Type<VersionPacket> type() {
         return TYPE;
     }
 }

@@ -12,7 +12,6 @@ import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
 import com.deathmotion.marlowcrystal.state.OptOutState;
 import com.deathmotion.marlowcrystal.util.Logger;
 import com.deathmotion.marlowcrystal.util.VersionUtil;
-import lombok.Getter;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -30,22 +29,34 @@ public class MarlowCrystal implements ClientModInitializer {
             .append(Component.literal("Marlow's Crystal Optimizer").withStyle(ChatFormatting.AQUA))
             .append(Component.literal("] ").withStyle(ChatFormatting.GRAY));
 
-    @Getter
     private static MarlowCrystal instance;
 
-    @Getter
     private static Logger logger;
 
-    @Getter
     private final OptOutState optOutState;
 
-    @Getter
     private VersionPacket versionPacket;
 
     public MarlowCrystal() {
         instance = this;
         logger = new Logger();
         optOutState = new OptOutState();
+    }
+
+    public static MarlowCrystal getInstance() {
+        return instance;
+    }
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
+    public OptOutState getOptOutState() {
+        return optOutState;
+    }
+
+    public VersionPacket getVersionPacket() {
+        return versionPacket;
     }
 
     @Override
