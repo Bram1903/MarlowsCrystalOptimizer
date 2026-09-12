@@ -3,6 +3,7 @@ package marlowcrystal
 import marlowcrystal.build.GenerateVersionsTask
 import marlowcrystal.build.GitValueSource
 import marlowcrystal.build.stonecutterProperty
+import marlowcrystal.build.stonecutterPropertyOrNull
 
 plugins {
     java
@@ -16,6 +17,8 @@ fun git(vararg arguments: String): Provider<String> = providers.of(GitValueSourc
 val generateVersions = tasks.register<GenerateVersionsTask>("generateVersions") {
     modVersion = stonecutterProperty("mod.version")
     minecraftRange = stonecutterProperty("mod.mc_range")
+    minecraftMin = stonecutterProperty("mod.mc_min")
+    minecraftMax = stonecutterPropertyOrNull("mod.mc_max")
     commit = git("rev-parse", "HEAD")
     dirty = git("status", "--porcelain", "--untracked-files=no").map { true }.orElse(false)
     outputDirectory = layout.buildDirectory.dir("generated/sources/versions/main")

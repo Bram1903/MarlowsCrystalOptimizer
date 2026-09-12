@@ -19,6 +19,13 @@ abstract class GenerateVersionsTask : DefaultTask() {
     abstract val minecraftRange: Property<String>
 
     @get:Input
+    abstract val minecraftMin: Property<String>
+
+    @get:Input
+    @get:Optional
+    abstract val minecraftMax: Property<String>
+
+    @get:Input
     @get:Optional
     abstract val commit: Property<String>
 
@@ -53,6 +60,8 @@ abstract class GenerateVersionsTask : DefaultTask() {
 
                 public static final String RAW = "$version";
                 public static final String MINECRAFT_RANGE = "${minecraftRange.get()}";
+                public static final String MINECRAFT_MIN = "${minecraftMin.get()}";
+                public static final String MINECRAFT_MAX = ${quoted(minecraftMax.orNull)};
                 public static final String COMMIT = ${quoted(fullCommit)};
                 public static final boolean DIRTY = ${dirty.get()};
                 public static final Instant BUILD_TIMESTAMP = Instant.ofEpochMilli(${System.currentTimeMillis()}L);

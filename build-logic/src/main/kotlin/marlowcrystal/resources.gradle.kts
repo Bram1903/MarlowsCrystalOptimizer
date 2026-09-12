@@ -1,5 +1,6 @@
 package marlowcrystal
 
+import marlowcrystal.build.minecraftDependency
 import marlowcrystal.build.requiredJava
 import marlowcrystal.build.sc
 import marlowcrystal.build.stonecutterProperty
@@ -16,7 +17,7 @@ tasks.processResources {
         "id" to stonecutterProperty("mod.id"),
         "name" to stonecutterProperty("mod.name"),
         "version" to stonecutterProperty("mod.version"),
-        "minecraft" to stonecutterProperty("mod.mc_compat"),
+        "minecraft" to minecraftDependency,
         "loader" to stonecutterProperty("deps.fabric_loader"),
         "fabric_api" to if (sc.current.parsed < "1.20.2") "fabric" else "fabric-api",
     )
