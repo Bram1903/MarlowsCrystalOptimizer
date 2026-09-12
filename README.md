@@ -38,8 +38,6 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 - [Installation](#installation)
 - [Optional Integrations](#optional-integrations)
 - [Opt-Out Support](#opt-out-support)
-    - [Plugin Messaging Protocol](#plugin-messaging-protocol)
-    - [Example Implementation (PacketEvents)](#example-implementation-packetevents)
     - [Client side opt-out showcase](#client-side-opt-out-showcase)
 - [Compiling From Source](#compiling-from-source)
     - [Prerequisites](#prerequisites)
@@ -61,112 +59,20 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 
 ## Optional Integrations
 
-Marlow's Crystal Optimizer installs and runs on its own. The mods below are optional and only add extra surfaces when
-they are present.
+Both mods are optional.
 
-| Mod                                                                  | Adds                                                      | Minecraft |
-|----------------------------------------------------------------------|-----------------------------------------------------------|-----------|
-| [Mod Menu](https://modrinth.com/mod/modmenu)                          | An update badge in the mod list when a newer release exists | 1.20.5+   |
-| [YetAnotherConfigLib](https://modrinth.com/mod/yacl) with Mod Menu   | A settings screen to pick the update source               | 1.20.2+   |
+| Mod                                                  | Adds                                                  | Minecraft |
+|------------------------------------------------------|-------------------------------------------------------|-----------|
+| [Mod Menu](https://modrinth.com/mod/modmenu)         | Update badge in the mod list                          | 1.20.5+   |
+| [YetAnotherConfigLib](https://modrinth.com/mod/yacl) | Settings screen for the update source, needs Mod Menu | 1.20.2+   |
 
-The update check never runs at startup on its own. It only runs when a surface such as Mod Menu asks for it, and then
-once per session. Modrinth is the default source and only offers releases built for your Minecraft version. GitHub can
-be selected instead and follows the latest release. The setting is stored in `config/marlowcrystal.json`.
+The update check only runs when Mod Menu asks for it, once per session. Modrinth is the default source and only offers
+releases for your Minecraft version. GitHub follows the latest release. The setting is stored in
+`config/marlowcrystal.json`.
 
 ## Opt-Out Support
 
-When the client receives an opt-out packet, the mod is disabled for the rest of that connection. A backend switch behind
-a proxy keeps the connection itself open, so the opt-out survives it and only needs to be sent once per connection.
-Once the player disconnects, the opt-out is cleared and the packet must be sent again on the next connection.
-
-### Plugin Messaging Protocol
-
-#### Handshake (v1.0.5+)
-
-| Step | Direction       | Channel                     | Payload                                                                                                                                                                 |
-|-----:|-----------------|-----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|    1 | Client → Server | `marlowcrystal:version`     | Version (See [VersionPacket](https://github.com/Bram1903/MarlowsCrystalOptimizer/blob/main/src/main/java/com/deathmotion/marlowcrystal/packet/impl/VersionPacket.java)) |
-|    2 | Client → Server | `minecraft:register`        | Includes `marlowcrystal:opt_out`                                                                                                                                        |
-|    3 | Server → Client | `marlowcrystal:opt_out`     | Empty                                                                                                                                                                   |
-|    4 | Client → Server | `marlowcrystal:opt_out_ack` | Empty                                                                                                                                                                   |
-
-#### Version Payload
-
-`marlowcrystal:version` uses Minecraft's packet encoding. Fields are only ever appended, so a server that reads the
-first four fields keeps working with newer clients.
-
-| Field            | Type    | Since | Description                                                               |
-|------------------|---------|-------|---------------------------------------------------------------------------|
-| `major`          | VarInt  | 1.1.0 | Major version                                                             |
-| `minor`          | VarInt  | 1.1.0 | Minor version                                                             |
-| `patch`          | VarInt  | 1.1.0 | Patch version                                                             |
-| `snapshot`       | Boolean | 1.1.0 | Whether this is a snapshot build                                          |
-| `format`         | VarInt  | 1.1.1 | Layout of the fields that follow, currently `1`                           |
-| `commit`         | String  | 1.1.1 | Full git commit hash the build was made from, empty when unknown          |
-| `dirty`          | Boolean | 1.1.1 | Whether the build contained uncommitted changes                           |
-| `minecraftRange` | String  | 1.1.1 | Minecraft versions the jar was built for, for example `1.20.5-1.21.4`     |
-
-Strings are a VarInt byte length followed by UTF-8. Clients older than 1.1.1 stop after `snapshot`, so only read the
-fields from `format` onwards when bytes remain, and ignore anything after the fields you know.
-
-#### Legacy Clients (pre-1.0.5)
-
-| Direction       | Channel         | Description            |
-|-----------------|-----------------|------------------------|
-| Client → Server | `minecraft:mco` | Legacy opt-out message |
-
-This channel is **not part of the active protocol**.
-When received, the server should disconnect the player and instruct them to update to **version 1.0.5 or newer**.
-
-### Example Implementation (PacketEvents)
-
-```java
-private static final String REGISTER_CHANNEL = "minecraft:register";
-private static final String OPT_OUT_CHANNEL = "marlowcrystal:opt_out";
-private static final String OPT_OUT_ACK_CHANNEL = "marlowcrystal:opt_out_ack";
-
-@Override
-public void onPacketReceive(PacketReceiveEvent event) {
-    PacketTypeCommon type = event.getPacketType();
-
-    if (type == PacketType.Play.Client.PLUGIN_MESSAGE) {
-        WrapperPlayClientPluginMessage packet = new WrapperPlayClientPluginMessage(event);
-        handlePluginMessage(packet.getChannelName(), packet.getData());
-    } else if (type == PacketType.Configuration.Client.PLUGIN_MESSAGE) {
-        WrapperConfigClientPluginMessage packet = new WrapperConfigClientPluginMessage(event);
-        handlePluginMessage(packet.getChannelName(), packet.getData());
-    }
-}
-```
-
-```java
-private void handlePluginMessage(String channel, byte[] data) {
-    if (REGISTER_CHANNEL.equals(channel)) {
-        handleRegister(data);
-        return;
-    }
-
-    if (OPT_OUT_ACK_CHANNEL.equals(channel)) {
-        // Client has acknowledged the opt-out
-    }
-}
-```
-
-```java
-private void handleRegister(byte[] data) {
-    String payload = new String(data, StandardCharsets.UTF_8);
-
-    for (String entry : payload.split("\0")) {
-        if (!OPT_OUT_CHANNEL.equals(entry)) {
-            continue;
-        }
-
-        // Make sure you create and send this packet asynchronously!
-        player.getUser().sendPacket(new WrapperPlayServerPluginMessage(OPT_OUT_CHANNEL, new byte[0]));
-        break;
-    }
-}
-```
+Servers can disable the optimizer for a connection. Channels and payloads are documented in [PROTOCOL.md](PROTOCOL.md).
 
 ### Client side opt-out showcase
 
@@ -223,6 +129,8 @@ To build just one, use `./gradlew 1.21.5:build`.
 Supported versions and their compatibility ranges are declared in `stonecutter.properties.toml`.
 That file is the single source of truth: it drives the jar name, the `depends.minecraft` range in
 `fabric.mod.json`, and the release targets.
+
+Shared build conventions live in `build-logic`. `build.gradle.kts` only holds the Minecraft and Loom setup.
 
 ## Releasing
 
