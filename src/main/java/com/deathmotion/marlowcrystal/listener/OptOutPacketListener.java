@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.Util;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +50,7 @@ public final class OptOutPacketListener {
             }
 
             if (!cache.hasNotified(key)) {
-                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS, Util.backgroundExecutor()).execute(() -> client.execute(() -> {
+                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS).execute(() -> client.execute(() -> {
                     if (client.player == null) return;
                     if (cache.hasNotified(key)) return;
 
