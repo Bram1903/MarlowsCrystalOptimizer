@@ -1,7 +1,7 @@
 package com.deathmotion.marlowcrystal.mixin;
 
 import com.deathmotion.marlowcrystal.MarlowCrystal;
-import com.deathmotion.marlowcrystal.cache.OptOutCache;
+import com.deathmotion.marlowcrystal.state.OptOutState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.Connection;
@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ClientConnectionMixin {
 
     @Unique
-    private OptOutCache optOutCache;
+    private OptOutState optOutState;
 
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;)V", at = @At("HEAD"))
     private void onPacketSend(Packet<?> packet, CallbackInfo ci) {
@@ -34,10 +34,10 @@ public class ClientConnectionMixin {
             return;
         }
 
-        if (optOutCache == null) {
-            optOutCache = MarlowCrystal.getInstance().getOptOutCache();
+        if (optOutState == null) {
+            optOutState = MarlowCrystal.getInstance().getOptOutState();
         }
-        if (optOutCache.isOptedOut()) {
+        if (optOutState.isOptedOut()) {
             return;
         }
 
