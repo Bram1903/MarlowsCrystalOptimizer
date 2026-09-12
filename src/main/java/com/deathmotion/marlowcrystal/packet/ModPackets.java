@@ -6,7 +6,7 @@ import net.minecraft.resources.Identifier;
 public final class ModPackets {
 
     public static Identifier id(String path) {
-        return Identifier.fromNamespaceAndPath(MarlowCrystal.MOD_ID, path);
+        return Identifier.tryParse(MarlowCrystal.MOD_ID + ":" + path);
     }
 }
 

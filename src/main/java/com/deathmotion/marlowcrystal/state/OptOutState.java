@@ -1,13 +1,14 @@
 package com.deathmotion.marlowcrystal.state;
 
-import lombok.Getter;
-
 public final class OptOutState {
 
-    @Getter
     private volatile boolean optedOut;
 
     private volatile boolean notified;
+
+    public boolean isOptedOut() {
+        return optedOut;
+    }
 
     public void markOptedOut() {
         optedOut = true;

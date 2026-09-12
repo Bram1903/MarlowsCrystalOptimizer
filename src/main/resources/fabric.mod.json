@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "marlowcrystal",
+  "id": "${id}",
   "version": "${version}",
-  "name": "Marlow's Crystal Optimizer",
+  "name": "${name}",
   "description": "Optimization that fixes waiting on the server after crystal break before end crystal entities are cleaned.",
   "authors": [
     "Bram",
@@ -25,9 +25,8 @@
     "MarlowCrystal.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=${loader_version}",
-    "minecraft": ">=26.1",
+    "fabricloader": ">=${loader}",
+    "minecraft": "${minecraft}",
     "fabric-api": "*"
   }
 }
-

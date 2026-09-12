@@ -4,9 +4,15 @@ import com.deathmotion.marlowcrystal.MarlowCrystal;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutAckPacket;
 import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
 import com.deathmotion.marlowcrystal.state.OptOutState;
+//? if <1.20.5 {
+/*import io.netty.buffer.Unpooled;
+*///?}
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+//? if <1.20.5 {
+/*import net.minecraft.network.FriendlyByteBuf;
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
@@ -26,7 +32,11 @@ public final class OptOutPacketListener {
                 .append(Component.literal("• This may be to enforce server rules or avoid compatibility issues.\n").withStyle(ChatFormatting.GRAY))
                 .append(Component.literal("\nThis only applies while you are connected to this server.").withStyle(ChatFormatting.DARK_GRAY));
 
+        //? if >=1.21.5 {
         Style hoverStyle = Style.EMPTY.withHoverEvent(new HoverEvent.ShowText(hover));
+        //?} else {
+        /*Style hoverStyle = Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
+        *///?}
         Component message = Component.literal("Optimizer disabled on this server.")
                 .withStyle(hoverStyle.withColor(ChatFormatting.RED));
 
@@ -35,22 +45,44 @@ public final class OptOutPacketListener {
                 .append(message);
     }
 
+    private static void showDisabledMessage(Minecraft client) {
+        if (client.player == null) {
+            return;
+        }
+
+        //? if >=26.1 {
+        client.player.sendSystemMessage(optimizerDisabledMessage());
+        //?} else {
+        /*client.player.displayClientMessage(optimizerDisabledMessage(), false);
+        *///?}
+    }
+
+    private static void handleOptOut(Minecraft client) {
+        OptOutState state = MarlowCrystal.getInstance().getOptOutState();
+
+        state.markOptedOut();
+
+        if (state.claimNotification()) {
+            CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS)
+                    .execute(() -> client.execute(() -> showDisabledMessage(client)));
+        }
+    }
+
     public static void register() {
+        //? if >=1.20.5 {
         ClientPlayNetworking.registerGlobalReceiver(OptOutPacket.TYPE, (payload, context) -> {
-            Minecraft client = context.client();
-            OptOutState state = MarlowCrystal.getInstance().getOptOutState();
-
-            state.markOptedOut();
-
-            if (state.claimNotification()) {
-                CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS).execute(() -> client.execute(() -> {
-                    if (client.player == null) return;
-
-                    client.player.sendSystemMessage(optimizerDisabledMessage());
-                }));
-            }
+            handleOptOut(context.client());
 
             ClientPlayNetworking.send(OptOutAckPacket.INSTANCE);
         });
+        //?} else {
+        /*ClientPlayNetworking.registerGlobalReceiver(OptOutPacket.ID, (client, handler, buf, sender) -> {
+            handleOptOut(client);
+
+            FriendlyByteBuf ackBuf = new FriendlyByteBuf(Unpooled.buffer());
+            OptOutAckPacket.INSTANCE.write(ackBuf);
+            ClientPlayNetworking.send(OptOutAckPacket.ID, ackBuf);
+        });
+        *///?}
     }
 }
