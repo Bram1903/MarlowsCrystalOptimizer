@@ -24,14 +24,14 @@ the first four fields keeps working with newer clients.
 | `minor`          | VarInt  | 1.1.0 | Minor version                                        |
 | `patch`          | VarInt  | 1.1.0 | Patch version                                        |
 | `snapshot`       | Boolean | 1.1.0 | Snapshot build                                       |
-| `format`         | VarInt  | 1.1.1 | Layout of the fields below, currently `1`            |
 | `commit`         | String  | 1.1.1 | Full git commit hash, empty when unknown             |
 | `dirty`          | Boolean | 1.1.1 | Built with uncommitted changes                       |
-| `minecraftRange` | String  | 1.1.1 | Minecraft versions of the jar, e.g. `1.21.5-1.21.10` |
+| `minecraftMin`   | String  | 1.1.1 | Lowest supported Minecraft version, e.g. `1.21.5`    |
+| `minecraftMax`   | String  | 1.1.1 | Highest supported Minecraft version, empty if open   |
 | `buildTimestamp` | Long    | 1.1.1 | Build time in milliseconds since the Unix epoch      |
 
-Clients older than 1.1.1 stop after `snapshot`. Read from `format` onwards only when bytes remain. Ignore bytes after
-the fields you know.
+The version tells which fields follow. Clients older than 1.1.1 stop after `snapshot`. Ignore bytes after the fields
+you know.
 
 ## Challenge
 

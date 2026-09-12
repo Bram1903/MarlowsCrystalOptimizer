@@ -16,25 +16,24 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import org.jetbrains.annotations.NotNull;
 
 //? if >=1.20.2 {
-public record VersionPacket(int major, int minor, int patch, boolean snapshot, int format, String commit, boolean dirty,
-                            String minecraftRange, long buildTimestamp) implements CustomPacketPayload {
+public record VersionPacket(int major, int minor, int patch, boolean snapshot, String commit, boolean dirty,
+                            String minecraftMin, String minecraftMax, long buildTimestamp) implements CustomPacketPayload {
 //?} else {
-/*public record VersionPacket(int major, int minor, int patch, boolean snapshot, int format, String commit, boolean dirty,
-                            String minecraftRange, long buildTimestamp) {
+/*public record VersionPacket(int major, int minor, int patch, boolean snapshot, String commit, boolean dirty,
+                            String minecraftMin, String minecraftMax, long buildTimestamp) {
 *///?}
-
-    public static final int FORMAT = 1;
 
     private static final int COMMIT_MAX_LENGTH = 40;
 
-    private static final int MINECRAFT_RANGE_MAX_LENGTH = 64;
+    private static final int MINECRAFT_VERSION_MAX_LENGTH = 32;
 
     public static VersionPacket current() {
         MCOVersion version = MCOVersions.CURRENT;
         String commit = MCOVersions.COMMIT;
-        return new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot(), FORMAT,
-                commit != null ? commit : "", MCOVersions.DIRTY, MCOVersions.MINECRAFT_RANGE,
-                MCOVersions.BUILD_TIMESTAMP.toEpochMilli());
+        String minecraftMax = MCOVersions.MINECRAFT_MAX;
+        return new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot(),
+                commit != null ? commit : "", MCOVersions.DIRTY, MCOVersions.MINECRAFT_MIN,
+                minecraftMax != null ? minecraftMax : "", MCOVersions.BUILD_TIMESTAMP.toEpochMilli());
     }
 
     private static void encode(FriendlyByteBuf buf, VersionPacket packet) {
@@ -42,10 +41,10 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, i
         buf.writeVarInt(packet.minor());
         buf.writeVarInt(packet.patch());
         buf.writeBoolean(packet.snapshot());
-        buf.writeVarInt(packet.format());
         buf.writeUtf(packet.commit(), COMMIT_MAX_LENGTH);
         buf.writeBoolean(packet.dirty());
-        buf.writeUtf(packet.minecraftRange(), MINECRAFT_RANGE_MAX_LENGTH);
+        buf.writeUtf(packet.minecraftMin(), MINECRAFT_VERSION_MAX_LENGTH);
+        buf.writeUtf(packet.minecraftMax(), MINECRAFT_VERSION_MAX_LENGTH);
         buf.writeLong(packet.buildTimestamp());
     }
 
@@ -65,12 +64,12 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, i
             int patch = buf.readVarInt();
             boolean snapshot = buf.readBoolean();
             if (!buf.isReadable()) {
-                return new VersionPacket(major, minor, patch, snapshot, 0, "", false, "", 0L);
+                return new VersionPacket(major, minor, patch, snapshot, "", false, "", "", 0L);
             }
 
-            VersionPacket packet = new VersionPacket(major, minor, patch, snapshot, buf.readVarInt(),
-                    buf.readUtf(COMMIT_MAX_LENGTH), buf.readBoolean(), buf.readUtf(MINECRAFT_RANGE_MAX_LENGTH),
-                    buf.readLong());
+            VersionPacket packet = new VersionPacket(major, minor, patch, snapshot, buf.readUtf(COMMIT_MAX_LENGTH),
+                    buf.readBoolean(), buf.readUtf(MINECRAFT_VERSION_MAX_LENGTH),
+                    buf.readUtf(MINECRAFT_VERSION_MAX_LENGTH), buf.readLong());
             buf.skipBytes(buf.readableBytes());
             return packet;
         }
