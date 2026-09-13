@@ -1,5 +1,6 @@
 package com.deathmotion.marlowcrystal.crystal;
 
+import com.deathmotion.marlowcrystal.config.ModConfig;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -10,7 +11,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.HitResult;
+//? if >=26.1 {
+import net.minecraft.world.phys.EntityHitResult;
+//?}
 
 public final class CrystalBreaker {
 
@@ -27,7 +30,12 @@ public final class CrystalBreaker {
             return;
         }
 
-        destroy(crystal);
+        if (ModConfig.getInstance().isKeepRender()) {
+            KeptCrystals.keep(crystal);
+        } else {
+            destroy(crystal);
+        }
+
         retargetCrosshair(client, crystal);
     }
 
@@ -76,21 +84,21 @@ public final class CrystalBreaker {
     }
 
     private static void retargetCrosshair(Minecraft client, EndCrystal crystal) {
+        if (client.crosshairPickEntity != crystal) {
+            return;
+        }
+
+        //? if >=26.1 {
         LocalPlayer player = client.player;
-        if (player == null || client.hitResult == null || client.crosshairPickEntity != crystal) {
+        Entity camera = client.getCameraEntity();
+        if (player == null || camera == null) {
             return;
         }
 
-        //? if >=1.20.5 {
-        HitResult retraced = player.pick(player.blockInteractionRange(), 1.0F, false);
+        client.hitResult = player.raycastHitResult(1.0F, camera);
+        client.crosshairPickEntity = client.hitResult instanceof EntityHitResult hit ? hit.getEntity() : null;
         //?} else {
-        /*if (client.gameMode == null) {
-            return;
-        }
-
-        HitResult retraced = player.pick(client.gameMode.getPickRange(), 1.0F, false);
+        /*client.gameRenderer.pick(1.0F);
         *///?}
-        client.crosshairPickEntity = null;
-        client.hitResult = retraced;
     }
 }

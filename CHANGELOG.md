@@ -1,5 +1,14 @@
 ## 1.1.1
 
+### Added
+
+- Added a Keep Render setting, off by default. A broken crystal stays visible until the server removes
+  it, but it stops blocking the crosshair, crystal placement and block placement straight away. A crystal
+  the server does not remove in time can be hit again, so a rejected hit does not leave a crystal you
+  cannot touch. That time is twice the slowest of your last 16 confirmed breaks, measured from the hit to
+  the server removing the crystal, kept between half a second and five seconds. It sends exactly the same
+  packets as the default mode.
+
 ### Fixed
 
 - Fixed a crash when joining a server that disables the optimizer on Minecraft 1.21.2 through 1.21.4.
@@ -12,6 +21,11 @@
   own attack, so the client never lost the speed and the sprint a sprint hit costs. It is now removed
   right after that attack, still inside the same click, so crystals break and the block behind them is
   targeted exactly as fast as before.
+- Fixed the click after breaking a crystal passing through a second crystal standing behind it, which
+  anticheats flagged as breaking or placing out of sight. The crosshair was moved to the block behind the
+  broken crystal without looking for entities. It is now moved the way Minecraft aims, so that click lands
+  on the crystal behind. With nothing behind the broken crystal it still reaches the block in the same
+  tick.
 
 ### Changed
 

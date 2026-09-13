@@ -24,6 +24,8 @@ public final class ModConfig {
 
     private volatile UpdateSource updateSource = UpdateSource.MODRINTH;
 
+    private volatile boolean keepRender;
+
     private ModConfig() {
     }
 
@@ -60,6 +62,14 @@ public final class ModConfig {
 
     public void setUpdateSource(UpdateSource updateSource) {
         this.updateSource = updateSource;
+    }
+
+    public boolean isKeepRender() {
+        return keepRender;
+    }
+
+    public void setKeepRender(boolean keepRender) {
+        this.keepRender = keepRender;
     }
 
     public synchronized void save() {

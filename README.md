@@ -64,11 +64,15 @@ Both mods are optional.
 | Mod                                                  | Adds                                                  | Minecraft |
 |------------------------------------------------------|-------------------------------------------------------|-----------|
 | [Mod Menu](https://modrinth.com/mod/modmenu)         | Update badge in the mod list                          | 1.20.5+   |
-| [YetAnotherConfigLib](https://modrinth.com/mod/yacl) | Settings screen for the update source, needs Mod Menu | 1.20.2+   |
+| [YetAnotherConfigLib](https://modrinth.com/mod/yacl) | Settings screen, needs Mod Menu                        | 1.20.2+   |
 
 The update check only runs when Mod Menu asks for it, once per session. Modrinth is the default source and only offers
-releases for your Minecraft version. GitHub follows the latest release. The setting is stored in
-`config/marlowcrystal.json`.
+releases for your Minecraft version. GitHub follows the latest release.
+
+Keep Render leaves a broken crystal visible until the server removes it. It stops blocking the crosshair and the next
+placement straight away. It is off by default.
+
+Settings are stored in `config/marlowcrystal.json`, as `updateSource` and `keepRender`.
 
 ## Opt-Out Support
 

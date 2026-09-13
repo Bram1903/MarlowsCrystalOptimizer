@@ -9,6 +9,7 @@ import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -22,6 +23,13 @@ public final class YaclScreenFactory {
     public static Screen create(Screen parent) {
         ModConfig config = ModConfig.getInstance();
 
+        Option<Boolean> keepRender = Option.<Boolean>createBuilder()
+                .name(Component.translatable("marlowcrystal.config.keep_render"))
+                .description(OptionDescription.of(Component.translatable("marlowcrystal.config.keep_render.description")))
+                .binding(false, config::isKeepRender, config::setKeepRender)
+                .controller(TickBoxControllerBuilder::create)
+                .build();
+
         Option<UpdateSource> updateSource = Option.<UpdateSource>createBuilder()
                 .name(Component.translatable("marlowcrystal.config.update_source"))
                 .description(OptionDescription.of(Component.translatable("marlowcrystal.config.update_source.description")))
@@ -33,6 +41,10 @@ public final class YaclScreenFactory {
 
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("marlowcrystal.config.title"))
+                .category(ConfigCategory.createBuilder()
+                        .name(Component.translatable("marlowcrystal.config.category.crystals"))
+                        .option(keepRender)
+                        .build())
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("marlowcrystal.config.category.updates"))
                         .option(updateSource)

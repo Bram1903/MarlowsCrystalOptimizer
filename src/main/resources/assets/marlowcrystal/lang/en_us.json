@@ -1,5 +1,8 @@
 {
   "marlowcrystal.config.title": "Marlow's Crystal Optimizer",
+  "marlowcrystal.config.category.crystals": "Crystals",
+  "marlowcrystal.config.keep_render": "Keep Render",
+  "marlowcrystal.config.keep_render.description": "Keeps a broken crystal visible until the server removes it. It stops blocking your crosshair and the next placement straight away. If the server does not remove it in time, it can be hit again. That time follows how long your recent breaks took to confirm.",
   "marlowcrystal.config.category.updates": "Updates",
   "marlowcrystal.config.update_source": "Update Source",
   "marlowcrystal.config.update_source.description": "Where to look for new versions. Modrinth only offers releases built for your Minecraft version, GitHub follows the latest release."
