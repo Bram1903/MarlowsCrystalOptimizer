@@ -4,7 +4,7 @@
   "package": "com.deathmotion.marlowcrystal.mixin",
   "compatibilityLevel": "${java}",
   "client": [
-    "ClientConnectionMixin"
+    "MultiPlayerGameModeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

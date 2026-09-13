@@ -7,6 +7,11 @@
   the moment the server sent its opt-out packet.
 - Fixed the mod failing to start the game on Minecraft 1.20.5 and 1.20.6. Packet identifiers were built
   with a method that only exists from 1.21 onwards.
+- Fixed a crystal struck while sprinting skipping the vanilla attack slowdown, which anticheats flagged
+  as movement. The crystal was removed the moment the attack packet was sent, before Minecraft ran its
+  own attack, so the client never lost the speed and the sprint a sprint hit costs. It is now removed
+  right after that attack, still inside the same click, so crystals break and the block behind them is
+  targeted exactly as fast as before.
 
 ### Changed
 
