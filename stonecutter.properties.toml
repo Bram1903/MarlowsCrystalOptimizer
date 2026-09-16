@@ -1,7 +1,7 @@
 mod.id = "marlowcrystal"
 mod.name = "Marlow's Crystal Optimizer"
 mod.group = "com.deathmotion.marlowcrystal"
-mod.version = "1.2.0-SNAPSHOT"
+mod.version = "2.0.0-SNAPSHOT"
 mod.archive = "marlows-crystal-optimizer"
 
 loomx.loom_version = "1.18.1"

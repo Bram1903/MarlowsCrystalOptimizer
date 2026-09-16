@@ -24,12 +24,12 @@ the first four fields keeps working with newer clients.
 | `minor`          | VarInt  | 1.1.0 | Minor version                                        |
 | `patch`          | VarInt  | 1.1.0 | Patch version                                        |
 | `snapshot`       | Boolean | 1.1.0 | Snapshot build                                       |
-| `loader`         | VarInt  | 1.2.0 | Mod loader: `0` Fabric, `1` NeoForge                 |
-| `commit`         | String  | 1.2.0 | Full git commit hash, empty when unknown             |
-| `dirty`          | Boolean | 1.2.0 | Built with uncommitted changes                       |
-| `buildTimestamp` | Long    | 1.2.0 | Build time in milliseconds since the Unix epoch      |
+| `loader`         | VarInt  | 2.0.0 | Mod loader: `0` Fabric, `1` NeoForge                 |
+| `commit`         | String  | 2.0.0 | Full git commit hash, empty when unknown             |
+| `dirty`          | Boolean | 2.0.0 | Built with uncommitted changes                       |
+| `buildTimestamp` | Long    | 2.0.0 | Build time in milliseconds since the Unix epoch      |
 
-The version tells which fields follow. Clients older than 1.2.0 stop after `snapshot`. Ignore bytes after the fields
+The version tells which fields follow. Clients older than 2.0.0 stop after `snapshot`. Ignore bytes after the fields
 you know.
 
 ## Challenge
