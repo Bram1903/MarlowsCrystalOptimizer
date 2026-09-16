@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public record MCOVersion(int major, int minor, int patch, boolean snapshot,
                          @Nullable String commit) implements Comparable<MCOVersion> {
 
-    private static final Pattern VERSION_PATTERN = Pattern.compile("v?(\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:\\+([0-9a-z.-]+?))?(-SNAPSHOT)?", Pattern.CASE_INSENSITIVE);
+    private static final Pattern VERSION_PATTERN = Pattern.compile("v?(\\d+)\\.(\\d+)(?:\\.(\\d+))?(-SNAPSHOT)?(?:\\+([0-9a-z.-]+))?", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern COMMIT_PATTERN = Pattern.compile("[0-9a-f]{7,40}");
 
@@ -22,12 +22,12 @@ public record MCOVersion(int major, int minor, int patch, boolean snapshot,
         Matcher matcher = VERSION_PATTERN.matcher(version.trim());
         if (!matcher.matches()) return Optional.empty();
 
-        String metadata = matcher.group(4);
+        String metadata = matcher.group(5);
         return Optional.of(new MCOVersion(
                 Integer.parseInt(matcher.group(1)),
                 Integer.parseInt(matcher.group(2)),
                 matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0,
-                matcher.group(5) != null,
+                matcher.group(4) != null,
                 metadata != null && COMMIT_PATTERN.matcher(metadata).matches() ? metadata : null
         ));
     }
@@ -47,6 +47,7 @@ public record MCOVersion(int major, int minor, int patch, boolean snapshot,
         return compareTo(other) > 0;
     }
 
+    @SuppressWarnings("unused") // counterpart of isNewerThan, kept so the comparison API is symmetric
     public boolean isOlderThan(@NotNull MCOVersion other) {
         return compareTo(other) < 0;
     }
@@ -61,6 +62,6 @@ public record MCOVersion(int major, int minor, int patch, boolean snapshot,
 
     @Override
     public @NotNull String toString() {
-        return toStringWithoutSnapshot() + (commit != null ? "+" + commit : "") + (snapshot ? "-SNAPSHOT" : "");
+        return toDisplayString() + (commit != null ? "+" + commit : "");
     }
 }

@@ -36,6 +36,7 @@ public final class KeptCrystals {
         lastKeptAt = now;
     }
 
+    @SuppressWarnings("MathClampMigration") // Math.clamp is Java 21+, the 1.19 and 1.20.4 lines target Java 17
     public static void confirmRemoval(Entity entity) {
         if (!(entity instanceof KeptCrystal crystal) || !crystal.marlowcrystal$isKept()) {
             return;

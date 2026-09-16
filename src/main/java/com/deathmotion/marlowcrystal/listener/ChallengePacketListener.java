@@ -15,6 +15,7 @@ public final class ChallengePacketListener {
     private ChallengePacketListener() {
     }
 
+    @SuppressWarnings("unused") // the lambda signature is fixed by Fabric
     public static void register() {
         //? if >=1.20.5 {
         ClientPlayNetworking.registerGlobalReceiver(ChallengePacket.TYPE, (payload, context) ->

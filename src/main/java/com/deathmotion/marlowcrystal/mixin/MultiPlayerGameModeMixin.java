@@ -26,8 +26,8 @@ public class MultiPlayerGameModeMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/player/Player;attack(Lnet/minecraft/world/entity/Entity;)V",
                     shift = At.Shift.AFTER))
-    private void marlowcrystal$afterAttack(Player player, Entity target, CallbackInfo ci) {
-        if (target instanceof EndCrystal crystal && !marlowcrystal$optedOut()) {
+    private void marlowcrystal$afterAttack(Player player, Entity entity, CallbackInfo ci) {
+        if (entity instanceof EndCrystal crystal && !marlowcrystal$optedOut()) {
             CrystalBreaker.breakIfPossible(Minecraft.getInstance(), crystal);
         }
     }

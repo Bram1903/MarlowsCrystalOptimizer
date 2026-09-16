@@ -52,10 +52,6 @@ public class MarlowCrystal implements ClientModInitializer {
         return instance;
     }
 
-    public static Logger getLogger() {
-        return logger;
-    }
-
     public OptOutState getOptOutState() {
         return optOutState;
     }

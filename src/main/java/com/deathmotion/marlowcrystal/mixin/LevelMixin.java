@@ -12,6 +12,9 @@ import java.util.function.Predicate;
 @Mixin(Level.class)
 public abstract class LevelMixin {
 
+    // The target parameter is named `predicate` up to 1.21.11 and `selector` from 26.1, so no single
+    // name= or parameter name matches every supported version. argsOnly + type matching works on all of them.
+    @SuppressWarnings({"ModifyVariableMayUseName", "NameDoesntMatchTargetClass"})
     @ModifyVariable(
             method = "getEntities(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;",
             at = @At("HEAD"),

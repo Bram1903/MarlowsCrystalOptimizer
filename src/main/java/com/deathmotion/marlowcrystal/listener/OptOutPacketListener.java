@@ -68,6 +68,7 @@ public final class OptOutPacketListener {
         }
     }
 
+    @SuppressWarnings("unused") // the lambda signature is fixed by Fabric
     public static void register() {
         //? if >=1.20.5 {
         ClientPlayNetworking.registerGlobalReceiver(OptOutPacket.TYPE, (payload, context) -> {

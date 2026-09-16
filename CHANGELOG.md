@@ -1,4 +1,4 @@
-## 1.1.1
+## 1.2.0
 
 ### Added
 
@@ -8,6 +8,8 @@
   cannot touch. That time is twice the slowest of your last 16 confirmed breaks, measured from the hit to
   the server removing the crystal, kept between half a second and five seconds. It sends exactly the same
   packets as the default mode.
+- Added Minecraft 26.3 to the supported versions. The 26.1 build covers it unchanged, so it ships as the
+  same jar. On 26.3 Fabric API itself asks for Fabric Loader `0.19.3` or newer.
 
 ### Fixed
 

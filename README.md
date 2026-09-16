@@ -4,6 +4,7 @@
   <img alt="GitHub Release" src="https://img.shields.io/github/release/Bram1903/MarlowsCrystalOptimizer.svg">
   <br>
   <a href="https://modrinth.com/mod/marlow-crystal-optimizer"><img alt="MarlowsCrystalOptimizer" src="https://img.shields.io/badge/-Modrinth-green?style=for-the-badge&logo=Modrinth"></a>
+  <a href="https://www.curseforge.com/minecraft/mc-mods/marlow-crystal-optimizer"><img alt="MarlowsCrystalOptimizer" src="https://img.shields.io/badge/-CurseForge-F16436?style=for-the-badge&logo=CurseForge&logoColor=white"></a>
   <a href="https://discord.deathmotion.com"><img alt="Discord" src="https://img.shields.io/badge/-Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white"></a>
   <br>
   <h2>Showcase Video</h2>
@@ -26,7 +27,7 @@ using:
 * **Minecraft 1.21.5 – 1.21.10:** Requires **Fabric Loader `0.16.10` or newer**
 * **Minecraft 1.21.11:** Requires **Fabric Loader `0.17.3` or newer**
 * **Minecraft 26.1 – 26.2:** Requires **Fabric Loader `0.18.4` or newer**
-* **Minecraft 26.3 and above:** Requires **Fabric Loader `0.19.5` or newer**
+* **Minecraft 26.3 and above:** Requires **Fabric Loader `0.19.3` or newer**
 
 Make sure you have the correct Fabric Loader version installed to ensure full compatibility.
 
@@ -42,6 +43,8 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 - [Compiling From Source](#compiling-from-source)
     - [Prerequisites](#prerequisites)
     - [Steps](#steps)
+- [Releasing](#releasing)
+    - [Dry run](#dry-run)
 - [License](#license)
 
 ## Supported Platforms & Versions
@@ -138,26 +141,41 @@ Shared build conventions live in `build-logic`. `build.gradle.kts` only holds th
 
 ## Releasing
 
-Publishing is a Gradle task rather than a CI job, driven by two environment variables:
+Publishing is a Gradle task rather than a CI job.
 
-| Variable | Used for |
-|----------|----------|
-| `MODRINTH_TOKEN` | Uploading one Modrinth version per supported range |
-| `GITHUB_TOKEN` | Creating the GitHub release and attaching every jar to it |
+1. Set `mod.version` in `stonecutter.properties.toml`. A version ending in `-SNAPSHOT` is published as a beta.
+2. Head `CHANGELOG.md` with that version. It becomes the release notes on every platform and in Discord.
+3. Set the four environment variables below. If any of them is missing, nothing is uploaded. The setup script
+   opens the page to create each one, checks what you paste, and stores it for new terminals:
+   ```bash
+   ./scripts/setup-publishing.sh
+   ```
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File scripts\setup-publishing.ps1
+   ```
+4. Run `./gradlew publishMods`.
 
-```bash
-./gradlew publishMods
-```
+| Variable | Used for | How to get it |
+|----------|----------|---------------|
+| `GITHUB_TOKEN` | The GitHub release and every jar attached to it | A [fine-grained token](https://github.com/settings/personal-access-tokens/new) for this repository with *Contents: Read and write*, or the output of `gh auth token` |
+| `MODRINTH_TOKEN` | One Modrinth version per supported range | A [personal access token](https://modrinth.com/settings/pats) with *Create versions*, *Read versions* and *Write versions* |
+| `CURSEFORGE_TOKEN` | One CurseForge file per supported range | An [API token](https://authors-old.curseforge.com/account/api-tokens) |
+| `DISCORD_WEBHOOK` | The release announcement | A webhook URL, created under the channel's *Integrations* settings |
 
-That creates a single GitHub release tagged `v<mod.version>` with all jars attached, and one Modrinth
-version per supported range. The game versions each Modrinth upload is tagged with come from
-`mod.mc_releases` in `stonecutter.properties.toml`, and the release notes come from `CHANGELOG.md`.
+The Minecraft versions each Modrinth and CurseForge upload is tagged with come from `mod.mc_releases` in
+`stonecutter.properties.toml`.
 
-Set `MCO_PUBLISH_DRY_RUN` to any value to print what would be published without uploading anything:
+### Dry run
+
+Set `MCO_PUBLISH_DRY_RUN` to any value to print what would be published without uploading anything. A dry run
+needs none of the variables above.
 
 ```bash
 MCO_PUBLISH_DRY_RUN=1 ./gradlew publishMods
 ```
+
+To preview the Discord announcement, also set `DISCORD_WEBHOOK_DRY_RUN` to a webhook for a test channel. Its
+Modrinth and CurseForge links are placeholders, because those only exist after a real upload.
 
 ## License
 

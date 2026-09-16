@@ -60,6 +60,8 @@ public final class ModConfig {
         return source != null ? source : UpdateSource.MODRINTH;
     }
 
+    // Only the YACL settings screen calls this, and Stonecutter drops that screen below 1.20.2.
+    @SuppressWarnings("unused")
     public void setUpdateSource(UpdateSource updateSource) {
         this.updateSource = updateSource;
     }
@@ -68,10 +70,14 @@ public final class ModConfig {
         return keepRender;
     }
 
+    // Only the YACL settings screen calls this, and Stonecutter drops that screen below 1.20.2.
+    @SuppressWarnings("unused")
     public void setKeepRender(boolean keepRender) {
         this.keepRender = keepRender;
     }
 
+    // Only the YACL settings screen calls this, and Stonecutter drops that screen below 1.20.2.
+    @SuppressWarnings("unused")
     public synchronized void save() {
         Path path = path();
         try {

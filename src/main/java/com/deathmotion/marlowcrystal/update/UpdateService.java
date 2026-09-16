@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@SuppressWarnings({"unused", "UnusedReturnValue"}) // only the Mod Menu and YACL integrations call this, and Stonecutter drops them below 1.20.2
 public final class UpdateService {
 
     private static final UpdateService INSTANCE = new UpdateService();

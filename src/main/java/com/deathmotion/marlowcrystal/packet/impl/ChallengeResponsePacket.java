@@ -11,7 +11,9 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 //? if <1.20.5 {
 /*import net.minecraft.resources.Identifier;
 *///?}
+//? if >=1.20.2 {
 import org.jetbrains.annotations.NotNull;
+//?}
 
 //? if >=1.20.2 {
 public record ChallengeResponsePacket(int challengeId) implements CustomPacketPayload {

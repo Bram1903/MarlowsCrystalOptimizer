@@ -19,6 +19,7 @@ public class Logger {
         logger.error("{}{}", PREFIX, message);
     }
 
+    @SuppressWarnings("unused") // completes the info/warn/error/debug facade
     public void debug(String message) {
         logger.debug("{}{}", PREFIX, message);
     }

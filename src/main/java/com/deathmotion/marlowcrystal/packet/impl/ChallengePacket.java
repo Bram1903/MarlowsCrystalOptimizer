@@ -11,7 +11,9 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 //? if <1.20.5 {
 /*import net.minecraft.resources.Identifier;
 *///?}
+//? if >=1.20.2 {
 import org.jetbrains.annotations.NotNull;
+//?}
 
 //? if >=1.20.2 {
 public record ChallengePacket(int challengeId) implements CustomPacketPayload {
@@ -41,6 +43,7 @@ public record ChallengePacket(int challengeId) implements CustomPacketPayload {
     //?} else {
     /*public static final Identifier ID = ModPackets.id("challenge");
 
+    @SuppressWarnings("unused") // part of the <1.20.5 packet API; only the packets this client sends have a caller
     public void write(FriendlyByteBuf buf) {
         buf.writeInt(challengeId);
     }

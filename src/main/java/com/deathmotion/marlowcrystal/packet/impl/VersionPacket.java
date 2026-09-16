@@ -13,7 +13,9 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 //? if <1.20.5 {
 /*import net.minecraft.resources.Identifier;
 *///?}
+//? if >=1.20.2 {
 import org.jetbrains.annotations.NotNull;
+//?}
 
 //? if >=1.20.2 {
 public record VersionPacket(int major, int minor, int patch, boolean snapshot, String commit, boolean dirty,
@@ -25,6 +27,7 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, S
 
     private static final int COMMIT_MAX_LENGTH = 40;
 
+    @SuppressWarnings("ConstantValue") // MCOVersions.COMMIT is generated and is null when git is unavailable
     public static VersionPacket current() {
         MCOVersion version = MCOVersions.CURRENT;
         String commit = MCOVersions.COMMIT;
@@ -47,12 +50,12 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, S
 
     public static final StreamCodec<FriendlyByteBuf, VersionPacket> STREAM_CODEC = new StreamCodec<>() {
         @Override
-        public void encode(FriendlyByteBuf buf, VersionPacket packet) {
+        public void encode(@NotNull FriendlyByteBuf buf, @NotNull VersionPacket packet) {
             VersionPacket.encode(buf, packet);
         }
 
         @Override
-        public VersionPacket decode(FriendlyByteBuf buf) {
+        public @NotNull VersionPacket decode(@NotNull FriendlyByteBuf buf) {
             int major = buf.readVarInt();
             int minor = buf.readVarInt();
             int patch = buf.readVarInt();
