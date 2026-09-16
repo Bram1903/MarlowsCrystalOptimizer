@@ -46,7 +46,7 @@ $secrets = @(
         Name = 'MCO_MODRINTH_TOKEN'; Required = $true
         For = 'Uploading one Modrinth version per jar'
         Url = 'https://modrinth.com/settings/pats'
-        Steps = 'Create a PAT with the Create versions, Read versions and Write versions scopes.'
+        Steps = 'Create a PAT with the Create versions, Read versions, Write versions and Read user data scopes. Read user data is only used to check the token.'
         Check = { param($value) Get-Status 'https://api.modrinth.com/v2/user' @{ Authorization = $value } }
     }
     [pscustomobject]@{
@@ -106,12 +106,8 @@ foreach ($secret in $secrets) {
     }
 
     $values[$secret.Name] = $current
-}
-
-foreach ($secret in $secrets) {
-    if ($values[$secret.Name]) {
-        [Environment]::SetEnvironmentVariable($secret.Name, $values[$secret.Name], 'User')
-    }
+    # Saved right away, so stopping the script halfway keeps what was already entered.
+    if ($current) { [Environment]::SetEnvironmentVariable($secret.Name, $current, 'User') }
 }
 
 $missing = @($secrets | Where-Object { $_.Required -and -not $values[$_.Name] } | ForEach-Object { $_.Name })

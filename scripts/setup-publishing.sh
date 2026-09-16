@@ -9,7 +9,7 @@ names="MCO_GITHUB_TOKEN MCO_MODRINTH_TOKEN MCO_CURSEFORGE_TOKEN MCO_DISCORD_WEBH
 github_token_url="https://github.com/settings/personal-access-tokens/new?name=MarlowsCrystalOptimizer%20publishing&description=Creates%20releases%20for%20Bram1903%2FMarlowsCrystalOptimizer&expires_in=365&contents=write"
 
 abort() {
-    printf '\nAborted, nothing was saved.\n'
+    printf '\nAborted. Secrets set before this one are saved.\n'
     exit 1
 }
 
@@ -104,6 +104,49 @@ ask() {
     done
 
     printf -v "$name" '%s' "$current"
+    save
+}
+
+case "$(basename "${SHELL:-sh}")" in
+    zsh) rc="${ZDOTDIR:-$HOME}/.zshrc" ;;
+    # macOS opens every terminal as a login shell, which reads .bash_profile and skips .bashrc.
+    bash) if [ "$(uname -s)" = Darwin ]; then rc="$HOME/.bash_profile"; else rc="$HOME/.bashrc"; fi ;;
+    fish) rc="" ;;
+    *) rc="$HOME/.profile" ;;
+esac
+# fish cannot read the export syntax of the shared file, so it gets its own copy.
+loaded_by=${rc:-"${XDG_CONFIG_HOME:-$HOME/.config}/fish/conf.d/marlowcrystal-publishing.fish"}
+
+# Runs after every secret, so stopping the script halfway keeps what was already entered.
+save() {
+    local name
+    umask 077
+    mkdir -p "$config_dir"
+    {
+        printf '# Written by scripts/setup-publishing.sh in %s\n' "$repository"
+        for name in $names; do
+            if [ -n "${!name-}" ]; then
+                printf 'export %s=%s\n' "$name" "$(sh_quote "${!name}")"
+            fi
+        done
+    } >"$env_file"
+    chmod 600 "$env_file"
+
+    if [ -n "$rc" ]; then
+        if ! grep -qF "$env_file" "$rc" 2>/dev/null; then
+            printf "\n# Publishing secrets for Marlow's Crystal Optimizer\n%s\n" "[ -f \"$env_file\" ] && . \"$env_file\"" >>"$rc"
+        fi
+    else
+        mkdir -p "$(dirname "$loaded_by")"
+        {
+            for name in $names; do
+                if [ -n "${!name-}" ]; then
+                    printf 'set -gx %s %s\n' "$name" "$(fish_quote "${!name}")"
+                fi
+            done
+        } >"$loaded_by"
+        chmod 600 "$loaded_by"
+    fi
 }
 
 cat <<EOF
@@ -126,7 +169,7 @@ ask MCO_GITHUB_TOKEN "" \
 ask MCO_MODRINTH_TOKEN "" \
     "Uploading one Modrinth version per jar" \
     "https://modrinth.com/settings/pats" \
-    "Create a PAT with the Create versions, Read versions and Write versions scopes." \
+    "Create a PAT with the Create versions, Read versions, Write versions and Read user data scopes. Read user data is only used to check the token." \
     check_modrinth
 ask MCO_CURSEFORGE_TOKEN "" \
     "Uploading one CurseForge file per jar" \
@@ -143,46 +186,6 @@ ask MCO_DISCORD_WEBHOOK_DRY_RUN " (optional)" \
     "" \
     "In Discord, for a test channel: Edit Channel > Integrations > Webhooks > New Webhook > Copy Webhook URL." \
     check_discord
-
-mkdir -p "$config_dir"
-umask 077
-{
-    printf '# Written by scripts/setup-publishing.sh in %s\n' "$repository"
-    for name in $names; do
-        if [ -n "${!name-}" ]; then
-            printf 'export %s=%s\n' "$name" "$(sh_quote "${!name}")"
-        fi
-    done
-} >"$env_file"
-chmod 600 "$env_file"
-
-hook="[ -f \"$env_file\" ] && . \"$env_file\""
-case "$(basename "${SHELL:-sh}")" in
-    zsh) rc="${ZDOTDIR:-$HOME}/.zshrc" ;;
-    # macOS opens every terminal as a login shell, which reads .bash_profile and skips .bashrc.
-    bash) if [ "$(uname -s)" = Darwin ]; then rc="$HOME/.bash_profile"; else rc="$HOME/.bashrc"; fi ;;
-    fish) rc="" ;;
-    *) rc="$HOME/.profile" ;;
-esac
-
-if [ -n "$rc" ]; then
-    if ! grep -qF "$env_file" "$rc" 2>/dev/null; then
-        printf "\n# Publishing secrets for Marlow's Crystal Optimizer\n%s\n" "$hook" >>"$rc"
-    fi
-    loaded_by=$rc
-else
-    # fish cannot read the export syntax of the shared file, so it gets its own copy.
-    loaded_by="${XDG_CONFIG_HOME:-$HOME/.config}/fish/conf.d/marlowcrystal-publishing.fish"
-    mkdir -p "$(dirname "$loaded_by")"
-    {
-        for name in $names; do
-            if [ -n "${!name-}" ]; then
-                printf 'set -gx %s %s\n' "$name" "$(fish_quote "${!name}")"
-            fi
-        done
-    } >"$loaded_by"
-    chmod 600 "$loaded_by"
-fi
 
 missing=""
 for name in MCO_GITHUB_TOKEN MCO_MODRINTH_TOKEN MCO_CURSEFORGE_TOKEN MCO_DISCORD_WEBHOOK; do

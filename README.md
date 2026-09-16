@@ -170,7 +170,7 @@ Publishing is a Gradle task rather than a CI job.
 | Variable | Used for | How to get it |
 |----------|----------|---------------|
 | `MCO_GITHUB_TOKEN` | The GitHub release and every jar attached to it | A [fine-grained token](https://github.com/settings/personal-access-tokens/new) for this repository with *Contents: Read and write*, or the output of `gh auth token` |
-| `MCO_MODRINTH_TOKEN` | One Modrinth version per jar | A [personal access token](https://modrinth.com/settings/pats) with *Create versions*, *Read versions* and *Write versions* |
+| `MCO_MODRINTH_TOKEN` | One Modrinth version per jar | A [personal access token](https://modrinth.com/settings/pats) with *Create versions*, *Read versions*, *Write versions* and *Read user data*, which the setup script needs to check it |
 | `MCO_CURSEFORGE_TOKEN` | One CurseForge file per jar | An [API token](https://authors-old.curseforge.com/account/api-tokens) |
 | `MCO_DISCORD_WEBHOOK` | The release announcement | A webhook URL, created under the channel's *Integrations* settings |
 
