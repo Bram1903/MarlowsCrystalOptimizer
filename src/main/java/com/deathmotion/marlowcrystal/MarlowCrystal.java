@@ -1,6 +1,5 @@
 package com.deathmotion.marlowcrystal;
 
-import com.deathmotion.marlowcrystal.crystal.KeptCrystals;
 import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
 import com.deathmotion.marlowcrystal.state.OptOutState;
 import com.deathmotion.marlowcrystal.util.Logger;
@@ -51,6 +50,5 @@ public final class MarlowCrystal {
 
     public void onDisconnect() {
         optOutState.reset();
-        KeptCrystals.reset();
     }
 }
