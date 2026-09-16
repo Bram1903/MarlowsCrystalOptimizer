@@ -4,7 +4,7 @@ set -euo pipefail
 repository="Bram1903/MarlowsCrystalOptimizer"
 config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/marlowcrystal"
 env_file="$config_dir/publishing.env"
-names="GITHUB_TOKEN MODRINTH_TOKEN CURSEFORGE_TOKEN DISCORD_WEBHOOK DISCORD_WEBHOOK_DRY_RUN"
+names="MCO_GITHUB_TOKEN MCO_MODRINTH_TOKEN MCO_CURSEFORGE_TOKEN MCO_DISCORD_WEBHOOK MCO_DISCORD_WEBHOOK_DRY_RUN"
 # GitHub fills in these token fields from the URL. It cannot preselect the repository.
 github_token_url="https://github.com/settings/personal-access-tokens/new?name=MarlowsCrystalOptimizer%20publishing&description=Creates%20releases%20for%20Bram1903%2FMarlowsCrystalOptimizer&expires_in=365&contents=write"
 
@@ -118,27 +118,27 @@ if [ -f "$env_file" ]; then
     . "$env_file"
 fi
 
-ask GITHUB_TOKEN "" \
+ask MCO_GITHUB_TOKEN "" \
     "Creating the GitHub release and attaching every jar to it" \
     "$github_token_url" \
     "Everything on the page is filled in except Repository access: choose Only select repositories, pick MarlowsCrystalOptimizer, then Generate token." \
     check_github
-ask MODRINTH_TOKEN "" \
-    "Uploading one Modrinth version per supported range" \
+ask MCO_MODRINTH_TOKEN "" \
+    "Uploading one Modrinth version per jar" \
     "https://modrinth.com/settings/pats" \
     "Create a PAT with the Create versions, Read versions and Write versions scopes." \
     check_modrinth
-ask CURSEFORGE_TOKEN "" \
-    "Uploading one CurseForge file per supported range" \
+ask MCO_CURSEFORGE_TOKEN "" \
+    "Uploading one CurseForge file per jar" \
     "https://authors-old.curseforge.com/account/api-tokens" \
     "Generate a token with any name. CurseForge tokens have no permissions to choose." \
     check_curseforge
-ask DISCORD_WEBHOOK "" \
+ask MCO_DISCORD_WEBHOOK "" \
     "Announcing the release in Discord" \
     "" \
     "In Discord: Edit Channel > Integrations > Webhooks > New Webhook > Copy Webhook URL." \
     check_discord
-ask DISCORD_WEBHOOK_DRY_RUN " (optional)" \
+ask MCO_DISCORD_WEBHOOK_DRY_RUN " (optional)" \
     "Previewing the announcement from a dry run, in a test channel" \
     "" \
     "In Discord, for a test channel: Edit Channel > Integrations > Webhooks > New Webhook > Copy Webhook URL." \
@@ -185,7 +185,7 @@ else
 fi
 
 missing=""
-for name in GITHUB_TOKEN MODRINTH_TOKEN CURSEFORGE_TOKEN DISCORD_WEBHOOK; do
+for name in MCO_GITHUB_TOKEN MCO_MODRINTH_TOKEN MCO_CURSEFORGE_TOKEN MCO_DISCORD_WEBHOOK; do
     if [ -z "${!name-}" ]; then
         missing="$missing $name"
     fi

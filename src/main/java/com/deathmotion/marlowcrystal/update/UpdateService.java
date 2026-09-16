@@ -2,9 +2,9 @@ package com.deathmotion.marlowcrystal.update;
 
 import com.deathmotion.marlowcrystal.config.ModConfig;
 import com.deathmotion.marlowcrystal.config.UpdateSource;
+import com.deathmotion.marlowcrystal.loader.LoaderAccess;
 import com.deathmotion.marlowcrystal.util.Logger;
 import com.deathmotion.marlowcrystal.versioning.MCOVersions;
-import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
 import java.util.Map;
@@ -34,12 +34,6 @@ public final class UpdateService {
         };
     }
 
-    private static Optional<String> minecraftVersion() {
-        return FabricLoader.getInstance()
-                .getModContainer("minecraft")
-                .map(container -> container.getMetadata().getVersion().getFriendlyString());
-    }
-
     public synchronized UpdateResult check() {
         UpdateSource source = ModConfig.getInstance().getUpdateSource();
         UpdateResult cached = results.get(source);
@@ -66,7 +60,7 @@ public final class UpdateService {
     }
 
     private UpdateResult query(UpdateSource source) throws InterruptedException {
-        Optional<String> minecraftVersion = minecraftVersion();
+        Optional<String> minecraftVersion = LoaderAccess.INSTANCE.minecraftVersion();
         if (minecraftVersion.isEmpty()) {
             return UpdateResult.none();
         }

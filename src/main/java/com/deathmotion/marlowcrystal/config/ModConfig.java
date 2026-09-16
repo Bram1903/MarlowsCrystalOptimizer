@@ -1,11 +1,11 @@
 package com.deathmotion.marlowcrystal.config;
 
 import com.deathmotion.marlowcrystal.MarlowCrystal;
+import com.deathmotion.marlowcrystal.loader.LoaderAccess;
 import com.deathmotion.marlowcrystal.util.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -37,7 +37,7 @@ public final class ModConfig {
     }
 
     private static Path path() {
-        return FabricLoader.getInstance().getConfigDir().resolve(MarlowCrystal.MOD_ID + ".json");
+        return LoaderAccess.INSTANCE.configDirectory().resolve(MarlowCrystal.MOD_ID + ".json");
     }
 
     private static ModConfig load() {
@@ -60,7 +60,7 @@ public final class ModConfig {
         return source != null ? source : UpdateSource.MODRINTH;
     }
 
-    // Only the YACL settings screen calls this, and Stonecutter drops that screen below 1.20.2.
+    // Only the YACL settings screen calls this, which drops it below 1.20.2 and on NeoForge.
     @SuppressWarnings("unused")
     public void setUpdateSource(UpdateSource updateSource) {
         this.updateSource = updateSource;

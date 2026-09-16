@@ -1,14 +1,18 @@
 //? if >=1.20.2 {
-package com.deathmotion.marlowcrystal.integration.modmenu;
+package com.deathmotion.marlowcrystal.integration.yacl;
 
 import com.deathmotion.marlowcrystal.config.ModConfig;
+//? if fabric {
 import com.deathmotion.marlowcrystal.config.UpdateSource;
+//?}
 import com.deathmotion.marlowcrystal.update.UpdateService;
 import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
+//? if fabric {
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+//?}
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -30,6 +34,15 @@ public final class YaclScreenFactory {
                 .controller(TickBoxControllerBuilder::create)
                 .build();
 
+        YetAnotherConfigLib.Builder builder = YetAnotherConfigLib.createBuilder()
+                .title(Component.translatable("marlowcrystal.config.title"))
+                .category(ConfigCategory.createBuilder()
+                        .name(Component.translatable("marlowcrystal.config.category.crystals"))
+                        .option(keepRender)
+                        .build());
+
+        // NeoForge shows updates from its own Modrinth feed, which this setting cannot redirect.
+        //? if fabric {
         Option<UpdateSource> updateSource = Option.<UpdateSource>createBuilder()
                 .name(Component.translatable("marlowcrystal.config.update_source"))
                 .description(OptionDescription.of(Component.translatable("marlowcrystal.config.update_source.description")))
@@ -39,16 +52,13 @@ public final class YaclScreenFactory {
                         .formatValue(source -> Component.literal(source.getDisplayName())))
                 .build();
 
-        return YetAnotherConfigLib.createBuilder()
-                .title(Component.translatable("marlowcrystal.config.title"))
-                .category(ConfigCategory.createBuilder()
-                        .name(Component.translatable("marlowcrystal.config.category.crystals"))
-                        .option(keepRender)
-                        .build())
-                .category(ConfigCategory.createBuilder()
-                        .name(Component.translatable("marlowcrystal.config.category.updates"))
-                        .option(updateSource)
-                        .build())
+        builder.category(ConfigCategory.createBuilder()
+                .name(Component.translatable("marlowcrystal.config.category.updates"))
+                .option(updateSource)
+                .build());
+        //?}
+
+        return builder
                 .save(() -> save(config))
                 .build()
                 .generateScreen(parent);

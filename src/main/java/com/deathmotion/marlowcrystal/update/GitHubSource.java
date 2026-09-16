@@ -1,12 +1,15 @@
 package com.deathmotion.marlowcrystal.update;
 
 import com.deathmotion.marlowcrystal.versioning.MCOVersion;
+import com.deathmotion.marlowcrystal.versioning.MCOVersions;
+import com.deathmotion.marlowcrystal.versioning.ModLoader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,7 +20,10 @@ public final class GitHubSource implements UpdateSourceClient {
 
     private static final Pattern RELEASE_VERSION = Pattern.compile("\\d+(?:\\.\\d+)*");
 
-    private static final Pattern ASSET_RANGE = Pattern.compile("\\+mc(\\d+(?:\\.\\d+)*)(?:-(\\d+(?:\\.\\d+)*))?\\.jar$");
+    private static final Pattern ASSET_RANGE = Pattern.compile("\\+mc(\\d+(?:\\.\\d+)*)(?:-(\\d+(?:\\.\\d+)*))?(?:-([a-z]+))?\\.jar$");
+
+    // Fabric jars kept the name they had before other loaders were supported.
+    private static final String LOADER_SUFFIX = MCOVersions.LOADER == ModLoader.FABRIC ? null : MCOVersions.LOADER.id();
 
     private static boolean supports(JsonArray assets, String minecraftVersion) {
         if (assets == null || !RELEASE_VERSION.matcher(minecraftVersion).matches()) {
@@ -32,6 +38,10 @@ public final class GitHubSource implements UpdateSourceClient {
             }
 
             ranged = true;
+            if (!Objects.equals(matcher.group(3), LOADER_SUFFIX)) {
+                continue;
+            }
+
             String lower = matcher.group(1);
             String upper = matcher.group(2) != null ? matcher.group(2) : lower;
             if (compare(minecraftVersion, lower) >= 0

@@ -2,6 +2,11 @@
 
 ### Added
 
+- Added NeoForge support for Minecraft 1.20.4 through 26.3, released next to the Fabric jars. It sends
+  the same packets as the Fabric version. With YetAnotherConfigLib installed, the settings open from
+  NeoForge's mod list, which also shows new versions from Modrinth.
+- The version packet now also sends the mod loader, the git commit the build came from, whether it had
+  uncommitted changes, and when it was built. PROTOCOL.md lists the fields.
 - Added a Keep Render setting, off by default. A broken crystal stays visible until the server removes
   it, but it stops blocking the crosshair, crystal placement and block placement straight away. A crystal
   the server does not remove in time can be hit again, so a rejected hit does not leave a crystal you

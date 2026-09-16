@@ -36,35 +36,35 @@ function Read-Hidden([string]$Prompt) {
 
 $secrets = @(
     [pscustomobject]@{
-        Name = 'GITHUB_TOKEN'; Required = $true
+        Name = 'MCO_GITHUB_TOKEN'; Required = $true
         For = 'Creating the GitHub release and attaching every jar to it'
         Url = $githubTokenUrl
         Steps = 'Everything on the page is filled in except Repository access: choose Only select repositories, pick MarlowsCrystalOptimizer, then Generate token.'
         Check = { param($value) Get-Status "https://api.github.com/repos/$repository" @{ Authorization = "Bearer $value" } }
     }
     [pscustomobject]@{
-        Name = 'MODRINTH_TOKEN'; Required = $true
-        For = 'Uploading one Modrinth version per supported range'
+        Name = 'MCO_MODRINTH_TOKEN'; Required = $true
+        For = 'Uploading one Modrinth version per jar'
         Url = 'https://modrinth.com/settings/pats'
         Steps = 'Create a PAT with the Create versions, Read versions and Write versions scopes.'
         Check = { param($value) Get-Status 'https://api.modrinth.com/v2/user' @{ Authorization = $value } }
     }
     [pscustomobject]@{
-        Name = 'CURSEFORGE_TOKEN'; Required = $true
-        For = 'Uploading one CurseForge file per supported range'
+        Name = 'MCO_CURSEFORGE_TOKEN'; Required = $true
+        For = 'Uploading one CurseForge file per jar'
         Url = 'https://authors-old.curseforge.com/account/api-tokens'
         Steps = 'Generate a token with any name. CurseForge tokens have no permissions to choose.'
         Check = { param($value) Get-Status 'https://minecraft.curseforge.com/api/game/version-types' @{ 'X-Api-Token' = $value } }
     }
     [pscustomobject]@{
-        Name = 'DISCORD_WEBHOOK'; Required = $true
+        Name = 'MCO_DISCORD_WEBHOOK'; Required = $true
         For = 'Announcing the release in Discord'
         Url = ''
         Steps = 'In Discord: Edit Channel > Integrations > Webhooks > New Webhook > Copy Webhook URL.'
         Check = { param($value) Test-DiscordWebhook $value }
     }
     [pscustomobject]@{
-        Name = 'DISCORD_WEBHOOK_DRY_RUN'; Required = $false
+        Name = 'MCO_DISCORD_WEBHOOK_DRY_RUN'; Required = $false
         For = 'Previewing the announcement from a dry run, in a test channel'
         Url = ''
         Steps = 'In Discord, for a test channel: Edit Channel > Integrations > Webhooks > New Webhook > Copy Webhook URL.'

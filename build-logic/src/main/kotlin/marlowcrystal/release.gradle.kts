@@ -1,12 +1,13 @@
 package marlowcrystal
 
+import marlowcrystal.build.JarDownloads
 import marlowcrystal.build.PUBLISH_SECRETS
-import marlowcrystal.build.RangeDownloads
 import marlowcrystal.build.discordAnnouncement
 import marlowcrystal.build.isPublishDryRun
+import marlowcrystal.build.loader
 import marlowcrystal.build.minecraftVersionOrder
 import marlowcrystal.build.releaseDefaults
-import marlowcrystal.build.stonecutterProperty
+import marlowcrystal.build.stonecutterList
 import me.modmuss50.mpp.PublishModTask
 import me.modmuss50.mpp.PublishResult
 import java.util.concurrent.Callable
@@ -38,6 +39,14 @@ tasks.withType<PublishModTask>().configureEach {
     dependsOn(checkPublishSecrets)
 }
 
+// Modrinth and CurseForge list the latest upload first, so the newest Minecraft versions go last, and for a range
+// both loaders support Fabric goes after NeoForge. Without this, parallel execution uploads in any order.
+val uploadOrder = compareBy(minecraftVersionOrder) { jar: Project -> jar.name.substringBefore('-') }
+    .thenByDescending { it.name.substringAfter('-') }
+subprojects.sortedWith(uploadOrder).zipWithNext { previous, next ->
+    next.tasks.withType<PublishModTask>().configureEach { mustRunAfter(previous.tasks.withType<PublishModTask>()) }
+}
+
 // PublishResult is internal to the plugin, but it is what the plugin links with, and a change to it fails the
 // build instead of posting a wrong link.
 fun uploadLink(project: Project, task: String): String =
@@ -49,7 +58,7 @@ publishMods {
     displayName = releaseTag
 
     github {
-        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        accessToken = providers.environmentVariable("MCO_GITHUB_TOKEN")
         repository = githubRepository
         commitish = "main"
         tagName = releaseTag
@@ -58,32 +67,31 @@ publishMods {
 
     val releaseNotes = changelog
 
-    // Here rather than in the version projects, which would post one announcement per Minecraft range.
+    // Here rather than in the version projects, which would post one announcement per jar.
     discord {
         // The jars attached to the GitHub release are separate tasks and would otherwise land after the announcement.
         dependsOn(tasks.withType<PublishModTask>(), Callable { subprojects.map { it.tasks.withType<PublishModTask>() } })
 
         // A required input, but dry runs must work without secrets.
-        webhookUrl = providers.environmentVariable("DISCORD_WEBHOOK")
+        webhookUrl = providers.environmentVariable("MCO_DISCORD_WEBHOOK")
             .let { if (publishDryRun) it.orElse("unused during a dry run") else it }
-        dryRunWebhookUrl = providers.environmentVariable("DISCORD_WEBHOOK_DRY_RUN")
+        dryRunWebhookUrl = providers.environmentVariable("MCO_DISCORD_WEBHOOK_DRY_RUN")
         username = "Marlow's Crystal Optimizer"
         avatarUrl = iconUrl
 
-        // The plugin posts a separate card per upload, thirteen of them; the content lists the downloads instead.
+        // The plugin posts a separate card per upload; the content lists the downloads instead.
         publishResults.setFrom()
 
         // Upload links only exist once the uploads have run.
         content = providers.provider {
-            val ranges = subprojects
-                .sortedWith(compareByDescending(minecraftVersionOrder) { it.name })
-                .map { range ->
-                    RangeDownloads(
-                        range.stonecutterProperty("mod.mc_range"),
-                        listOf("Modrinth" to uploadLink(range, "publishModrinth"), "CurseForge" to uploadLink(range, "publishCurseforge")),
-                    )
-                }
-            discordAnnouncement(modVersion, releaseNotes.get(), ranges, githubRelease)
+            val jars = subprojects.map { jar ->
+                JarDownloads(
+                    jar.loader,
+                    jar.stonecutterList("mod", "mc_releases"),
+                    listOf("Modrinth" to uploadLink(jar, "publishModrinth"), "CurseForge" to uploadLink(jar, "publishCurseforge")),
+                )
+            }
+            discordAnnouncement(modVersion, releaseNotes.get(), jars, githubRelease)
         }
 
         style {

@@ -1,32 +1,15 @@
 package com.deathmotion.marlowcrystal;
 
-import com.deathmotion.marlowcrystal.listener.ChallengePacketListener;
-import com.deathmotion.marlowcrystal.listener.ConnectEventListener;
-import com.deathmotion.marlowcrystal.listener.DisconnectEventListener;
-import com.deathmotion.marlowcrystal.listener.OptOutPacketListener;
-//? if >=1.20.5 {
-import com.deathmotion.marlowcrystal.packet.impl.ChallengePacket;
-import com.deathmotion.marlowcrystal.packet.impl.ChallengeResponsePacket;
-import com.deathmotion.marlowcrystal.packet.impl.OptOutAckPacket;
-import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
-//?}
+import com.deathmotion.marlowcrystal.crystal.KeptCrystals;
 import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
 import com.deathmotion.marlowcrystal.state.OptOutState;
 import com.deathmotion.marlowcrystal.util.Logger;
 import com.deathmotion.marlowcrystal.versioning.MCOVersion;
 import com.deathmotion.marlowcrystal.versioning.MCOVersions;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-//? if >=1.20.5 {
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-//?}
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
-@Environment(EnvType.CLIENT)
-public class MarlowCrystal implements ClientModInitializer {
+public final class MarlowCrystal {
 
     public static final String MOD_ID = "marlowcrystal";
 
@@ -36,20 +19,26 @@ public class MarlowCrystal implements ClientModInitializer {
 
     private static MarlowCrystal instance;
 
-    private static Logger logger;
+    private final OptOutState optOutState = new OptOutState();
 
-    private final OptOutState optOutState;
+    private final VersionPacket versionPacket = VersionPacket.current();
 
-    private VersionPacket versionPacket;
-
-    public MarlowCrystal() {
-        instance = this;
-        logger = new Logger();
-        optOutState = new OptOutState();
+    private MarlowCrystal() {
     }
 
     public static MarlowCrystal getInstance() {
         return instance;
+    }
+
+    public static void initialize() {
+        instance = new MarlowCrystal();
+
+        MCOVersion version = MCOVersions.CURRENT;
+        String commit = version.commit();
+        new Logger().info("Mod initialized, version " + version.toDisplayString()
+                + " for Minecraft " + MCOVersions.MINECRAFT_RANGE
+                + " built " + MCOVersions.BUILD_TIMESTAMP
+                + (commit != null ? " (" + commit + (MCOVersions.DIRTY ? ", dirty" : "") + ")" : ""));
     }
 
     public OptOutState getOptOutState() {
@@ -60,30 +49,8 @@ public class MarlowCrystal implements ClientModInitializer {
         return versionPacket;
     }
 
-    @Override
-    public void onInitializeClient() {
-        MCOVersion version = MCOVersions.CURRENT;
-        versionPacket = VersionPacket.current();
-
-        //? if >=1.20.5 {
-        PayloadTypeRegistry.clientboundConfiguration().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(OptOutPacket.TYPE, OptOutPacket.STREAM_CODEC);
-        PayloadTypeRegistry.clientboundPlay().register(ChallengePacket.TYPE, ChallengePacket.STREAM_CODEC);
-
-        PayloadTypeRegistry.serverboundPlay().register(OptOutAckPacket.TYPE, OptOutAckPacket.STREAM_CODEC);
-        PayloadTypeRegistry.serverboundPlay().register(VersionPacket.TYPE, VersionPacket.STREAM_CODEC);
-        PayloadTypeRegistry.serverboundPlay().register(ChallengeResponsePacket.TYPE, ChallengeResponsePacket.STREAM_CODEC);
-        //?}
-
-        ClientPlayConnectionEvents.JOIN.register(new ConnectEventListener());
-        ClientPlayConnectionEvents.DISCONNECT.register(new DisconnectEventListener());
-        OptOutPacketListener.register();
-        ChallengePacketListener.register();
-
-        String commit = version.commit();
-        logger.info("Mod initialized, version " + version.toDisplayString()
-                + " for Minecraft " + MCOVersions.MINECRAFT_RANGE
-                + " built " + MCOVersions.BUILD_TIMESTAMP
-                + (commit != null ? " (" + commit + (MCOVersions.DIRTY ? ", dirty" : "") + ")" : ""));
+    public void onDisconnect() {
+        optOutState.reset();
+        KeptCrystals.reset();
     }
 }

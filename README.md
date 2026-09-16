@@ -31,6 +31,15 @@ using:
 
 Make sure you have the correct Fabric Loader version installed to ensure full compatibility.
 
+On NeoForge it requires:
+
+* **Minecraft 1.20.4:** Requires **NeoForge `20.4.167` or newer**
+* **Minecraft 1.20.5 – 1.20.6:** Requires **NeoForge `20.5.21-beta` or newer**
+* **Minecraft 1.21 – 1.21.4:** Requires **NeoForge `21.0.143` or newer**
+* **Minecraft 1.21.5 – 1.21.10:** Requires **NeoForge `21.5.74` or newer**
+* **Minecraft 1.21.11:** Requires **NeoForge `21.11.42` or newer**
+* **Minecraft 26.1 and above:** Requires **NeoForge `26.1.0.19-beta` or newer**
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -52,25 +61,27 @@ Make sure you have the correct Fabric Loader version installed to ensure full co
 | Platform | Supported Versions |
 |----------|--------------------|
 | Fabric   | 1.19 - 26.3        |
+| NeoForge | 1.20.4 - 26.3      |
 
 ## Installation
 
 1. **Download**: Get the latest release from
    the [GitHub release page](https://github.com/Bram1903/MarlowsCrystalOptimizer/releases/latest).
 2. **Install**: Place the mod in your `mods` folder, located in your `.minecraft` directory (`%appdata%`).
-3. **Launch**: Start the game with the Fabric Loader profile.
+3. **Launch**: Start the game with the Fabric Loader or NeoForge profile.
 
 ## Optional Integrations
 
 Both mods are optional.
 
-| Mod                                                  | Adds                                                  | Minecraft |
-|------------------------------------------------------|-------------------------------------------------------|-----------|
-| [Mod Menu](https://modrinth.com/mod/modmenu)         | Update badge in the mod list                          | 1.20.5+   |
-| [YetAnotherConfigLib](https://modrinth.com/mod/yacl) | Settings screen, needs Mod Menu                        | 1.20.2+   |
+| Mod                                                  | Adds                                                     | Minecraft |
+|------------------------------------------------------|----------------------------------------------------------|-----------|
+| [Mod Menu](https://modrinth.com/mod/modmenu)         | Update badge in the mod list, Fabric only                | 1.20.5+   |
+| [YetAnotherConfigLib](https://modrinth.com/mod/yacl) | Settings screen, needs Mod Menu on Fabric                | 1.20.2+   |
 
-The update check only runs when Mod Menu asks for it, once per session. Modrinth is the default source and only offers
-releases for your Minecraft version. GitHub follows the latest release.
+On Fabric the update check only runs when Mod Menu asks for it, once per session. Modrinth is the default source and
+only offers releases for your Minecraft version. GitHub follows the latest release. On NeoForge the mod list shows
+updates from Modrinth itself, so the source cannot be changed there.
 
 Keep Render leaves a broken crystal visible until the server removes it. It stops blocking the crosshair and the next
 placement straight away. It is off by default.
@@ -110,7 +121,7 @@ resolves the per-version differences at build time, so there is no branch to swi
    cd MarlowsCrystalOptimizer
    ```
 3. **Build every supported version**:
-   Jars are written to `build/libs/`, one per supported Minecraft range.
+   Jars are written to `build/libs/`, one per supported Minecraft range and loader.
 
    <details>
    <summary><strong>Linux / macOS</strong></summary>
@@ -129,15 +140,16 @@ resolves the per-version differences at build time, so there is no branch to swi
 
 ### Working on a single version
 
-`src/` is shown for one Minecraft version at a time. Switch which one with the
+`src/` is shown for one Minecraft version and loader at a time. Switch which one with the
 `Set active project to ...` Gradle task, and run `Reset active project` before committing.
-To build just one, use `./gradlew 1.21.5:build`.
+To build just one, use `./gradlew :1.21.5-fabric:build` or `./gradlew :1.21.5-neoforge:build`.
 
-Supported versions and their compatibility ranges are declared in `stonecutter.properties.toml`.
-That file is the single source of truth: it drives the jar name, the `depends.minecraft` range in
-`fabric.mod.json`, and the release targets.
+Supported versions and their compatibility ranges are declared in `stonecutter.properties.toml`, per loader.
+That file is the single source of truth: it drives the jar name, the Minecraft range in `fabric.mod.json` and
+`neoforge.mods.toml`, and the release targets.
 
-Shared build conventions live in `build-logic`. `build.gradle.kts` only holds the Minecraft and Loom setup.
+Shared build conventions live in `build-logic`. `build.fabric.gradle.kts` and `build.neoforge.gradle.kts` only hold the
+Minecraft and loader toolchain setup.
 
 ## Releasing
 
@@ -157,10 +169,10 @@ Publishing is a Gradle task rather than a CI job.
 
 | Variable | Used for | How to get it |
 |----------|----------|---------------|
-| `GITHUB_TOKEN` | The GitHub release and every jar attached to it | A [fine-grained token](https://github.com/settings/personal-access-tokens/new) for this repository with *Contents: Read and write*, or the output of `gh auth token` |
-| `MODRINTH_TOKEN` | One Modrinth version per supported range | A [personal access token](https://modrinth.com/settings/pats) with *Create versions*, *Read versions* and *Write versions* |
-| `CURSEFORGE_TOKEN` | One CurseForge file per supported range | An [API token](https://authors-old.curseforge.com/account/api-tokens) |
-| `DISCORD_WEBHOOK` | The release announcement | A webhook URL, created under the channel's *Integrations* settings |
+| `MCO_GITHUB_TOKEN` | The GitHub release and every jar attached to it | A [fine-grained token](https://github.com/settings/personal-access-tokens/new) for this repository with *Contents: Read and write*, or the output of `gh auth token` |
+| `MCO_MODRINTH_TOKEN` | One Modrinth version per jar | A [personal access token](https://modrinth.com/settings/pats) with *Create versions*, *Read versions* and *Write versions* |
+| `MCO_CURSEFORGE_TOKEN` | One CurseForge file per jar | An [API token](https://authors-old.curseforge.com/account/api-tokens) |
+| `MCO_DISCORD_WEBHOOK` | The release announcement | A webhook URL, created under the channel's *Integrations* settings |
 
 The Minecraft versions each Modrinth and CurseForge upload is tagged with come from `mod.mc_releases` in
 `stonecutter.properties.toml`.
@@ -174,7 +186,7 @@ needs none of the variables above.
 MCO_PUBLISH_DRY_RUN=1 ./gradlew publishMods
 ```
 
-To preview the Discord announcement, also set `DISCORD_WEBHOOK_DRY_RUN` to a webhook for a test channel. Its
+To preview the Discord announcement, also set `MCO_DISCORD_WEBHOOK_DRY_RUN` to a webhook for a test channel. Its
 Modrinth and CurseForge links are placeholders, because those only exist after a real upload.
 
 ## License

@@ -1,5 +1,7 @@
 package marlowcrystal
 
+import marlowcrystal.build.isFabric
+import marlowcrystal.build.loader
 import marlowcrystal.build.stonecutterProperty
 import marlowcrystal.build.stonecutterPropertyOrNull
 
@@ -9,8 +11,11 @@ repositories {
 }
 
 dependencies {
-    "modCompileOnly"("com.terraformersmc:modmenu:${stonecutterProperty("deps.modmenu")}") { isTransitive = false }
+    val integration = if (isFabric) "modCompileOnly" else "compileOnly"
+    if (isFabric) {
+        integration("com.terraformersmc:modmenu:${stonecutterProperty("deps.modmenu")}") { isTransitive = false }
+    }
     stonecutterPropertyOrNull("deps.yacl")?.let { yacl ->
-        "modCompileOnly"("dev.isxander:yet-another-config-lib:$yacl") { isTransitive = false }
+        integration("dev.isxander:yet-another-config-lib:$yacl-$loader") { isTransitive = false }
     }
 }

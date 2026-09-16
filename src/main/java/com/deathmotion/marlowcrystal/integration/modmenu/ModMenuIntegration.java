@@ -1,5 +1,9 @@
+//? if fabric {
 package com.deathmotion.marlowcrystal.integration.modmenu;
 
+//? if >=1.20.2 {
+import com.deathmotion.marlowcrystal.integration.yacl.YaclScreenFactory;
+//?}
 //? if >=1.20.5 {
 import com.deathmotion.marlowcrystal.update.UpdateResult;
 import com.deathmotion.marlowcrystal.update.UpdateService;
@@ -68,3 +72,4 @@ public class ModMenuIntegration implements ModMenuApi {
     }
     //?}
 }
+//?}

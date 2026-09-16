@@ -24,6 +24,7 @@ the first four fields keeps working with newer clients.
 | `minor`          | VarInt  | 1.1.0 | Minor version                                        |
 | `patch`          | VarInt  | 1.1.0 | Patch version                                        |
 | `snapshot`       | Boolean | 1.1.0 | Snapshot build                                       |
+| `loader`         | VarInt  | 1.2.0 | Mod loader: `0` Fabric, `1` NeoForge                 |
 | `commit`         | String  | 1.2.0 | Full git commit hash, empty when unknown             |
 | `dirty`          | Boolean | 1.2.0 | Built with uncommitted changes                       |
 | `buildTimestamp` | Long    | 1.2.0 | Build time in milliseconds since the Unix epoch      |
@@ -38,7 +39,8 @@ Send a random Int on `marlowcrystal:challenge`. The client answers with the same
 
 ## Opt-Out
 
-1. The client registers `marlowcrystal:opt_out` through `minecraft:register`.
+1. The client registers `marlowcrystal:opt_out` through `minecraft:register`. Fabric clients send it after joining,
+   NeoForge clients at the end of the configuration phase, so listen for it in both phases.
 2. The server sends `marlowcrystal:opt_out`.
 3. The client disables the optimizer and replies with `marlowcrystal:opt_out_ack`.
 

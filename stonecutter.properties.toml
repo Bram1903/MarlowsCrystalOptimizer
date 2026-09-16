@@ -6,7 +6,7 @@ mod.archive = "marlows-crystal-optimizer"
 
 loomx.loom_version = "1.18.1"
 
-["1.19"]
+[fabric."1.19"]
 mod.mc_compat = ">=1.19 <=1.20.1"
 mod.mc_range = "1.19-1.20.1"
 mod.mc_releases = ["1.19", "1.19.1", "1.19.2", "1.19.3", "1.19.4", "1.20", "1.20.1"]
@@ -15,46 +15,93 @@ deps.fabric_api = "0.55.1+1.19"
 deps.modmenu = "4.0.4"
 
 ["1.20.4"]
+deps.yacl = "3.6.6+1.20.4"
+
+[fabric."1.20.4"]
 mod.mc_compat = ">=1.20.2 <=1.20.4"
 mod.mc_range = "1.20.2-1.20.4"
 mod.mc_releases = ["1.20.2", "1.20.3", "1.20.4"]
 deps.fabric_loader = "0.16.5"
 deps.fabric_api = "0.91.1+1.20.4"
 deps.modmenu = "9.2.0"
-deps.yacl = "3.6.6+1.20.4-fabric"
+
+# ModDevGradle cannot resolve NeoForge 20.4 before 20.4.251 or any 20.5 build, so these compile against
+# deps.neoforge_build while deps.neoforge stays the declared minimum.
+[neoforge."1.20.4"]
+mod.mc_compat = "[1.20.4]"
+mod.mc_range = "1.20.4"
+mod.mc_releases = ["1.20.4"]
+deps.neoforge = "20.4.167"
+deps.neoforge_build = "20.4.251"
+
+[neoforge."1.20.6"]
+mod.mc_compat = "[1.20.5,1.20.6]"
+mod.mc_range = "1.20.5-1.20.6"
+mod.mc_releases = ["1.20.5", "1.20.6"]
+deps.neoforge = "20.5.21-beta"
+deps.neoforge_build = "20.6.122"
+deps.yacl = "3.6.6+1.20.6"
 
 ["1.21"]
+deps.yacl = "3.8.1+1.21.1"
+
+[fabric."1.21"]
 mod.mc_compat = ">=1.20.5 <=1.21.4"
 mod.mc_range = "1.20.5-1.21.4"
 mod.mc_releases = ["1.20.5", "1.20.6", "1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4"]
 deps.fabric_loader = "0.16.5"
 deps.fabric_api = "0.100.1+1.21"
 deps.modmenu = "11.0.4"
-deps.yacl = "3.8.1+1.21.1-fabric"
+
+[neoforge."1.21"]
+mod.mc_compat = "[1.21,1.21.4]"
+mod.mc_range = "1.21-1.21.4"
+mod.mc_releases = ["1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4"]
+deps.neoforge = "21.0.143"
 
 ["1.21.5"]
+deps.yacl = "3.8.1+1.21.5"
+
+[fabric."1.21.5"]
 mod.mc_compat = ">=1.21.5 <=1.21.10"
 mod.mc_range = "1.21.5-1.21.10"
 mod.mc_releases = ["1.21.5", "1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10"]
 deps.fabric_loader = "0.16.10"
 deps.fabric_api = "0.119.5+1.21.5"
 deps.modmenu = "14.0.2"
-deps.yacl = "3.8.1+1.21.5-fabric"
+
+[neoforge."1.21.5"]
+mod.mc_compat = "[1.21.5,1.21.10]"
+mod.mc_range = "1.21.5-1.21.10"
+mod.mc_releases = ["1.21.5", "1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10"]
+deps.neoforge = "21.5.74"
 
 ["1.21.11"]
-mod.mc_compat = "1.21.11"
 mod.mc_range = "1.21.11"
 mod.mc_releases = ["1.21.11"]
+deps.yacl = "3.8.1+1.21.11"
+
+[fabric."1.21.11"]
+mod.mc_compat = "1.21.11"
 deps.fabric_loader = "0.17.3"
 deps.fabric_api = "0.139.4+1.21.11"
 deps.modmenu = "17.0.0"
-deps.yacl = "3.8.1+1.21.11-fabric"
+
+[neoforge."1.21.11"]
+mod.mc_compat = "[1.21.11]"
+deps.neoforge = "21.11.42"
 
 ["26.1"]
-mod.mc_compat = ">=26.1"
 mod.mc_range = "26.1-26.3"
 mod.mc_releases = ["26.1", "26.1.1", "26.1.2", "26.2", "26.3"]
+deps.yacl = "3.9.6+26.1"
+
+[fabric."26.1"]
+mod.mc_compat = ">=26.1"
 deps.fabric_loader = "0.18.4"
 deps.fabric_api = "0.144.0+26.1"
 deps.modmenu = "18.0.1"
-deps.yacl = "3.9.6+26.1-fabric"
+
+[neoforge."26.1"]
+mod.mc_compat = "[26.1,)"
+deps.neoforge = "26.1.0.19-beta"

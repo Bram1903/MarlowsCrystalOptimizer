@@ -4,7 +4,7 @@ import me.modmuss50.mpp.ModPublishExtension
 import me.modmuss50.mpp.ReleaseType
 import org.gradle.api.Project
 
-val PUBLISH_SECRETS = listOf("GITHUB_TOKEN", "MODRINTH_TOKEN", "CURSEFORGE_TOKEN", "DISCORD_WEBHOOK")
+val PUBLISH_SECRETS = listOf("MCO_GITHUB_TOKEN", "MCO_MODRINTH_TOKEN", "MCO_CURSEFORGE_TOKEN", "MCO_DISCORD_WEBHOOK")
 
 val Project.isPublishDryRun: Boolean
     get() = providers.environmentVariable("MCO_PUBLISH_DRY_RUN").isPresent
@@ -23,18 +23,42 @@ val minecraftVersionOrder: Comparator<String> = Comparator { left, right ->
         .firstOrNull { it != 0 } ?: 0
 }
 
-data class RangeDownloads(val minecraftRange: String, val links: List<Pair<String, String>>)
+private val LOADERS = listOf("fabric", "neoforge")
+
+fun loaderName(loader: String): String = when (loader) {
+    "fabric" -> "Fabric"
+    "neoforge" -> "NeoForge"
+    else -> error("Unknown loader $loader")
+}
+
+data class JarDownloads(val loader: String, val minecraftReleases: List<String>, val links: List<Pair<String, String>>)
 
 private const val DISCORD_DESCRIPTION_LIMIT = 4096
 
-fun discordAnnouncement(modVersion: String, changelog: String, ranges: List<RangeDownloads>, githubRelease: String): String {
+// Loaders split their jars at different Minecraft versions, so the list is cut wherever any jar starts or ends,
+// which leaves at most one jar per loader on each line.
+private fun downloadLines(jars: List<JarDownloads>): List<String> {
+    val releases = jars.flatMap { it.minecraftReleases }.distinct().sortedWith(minecraftVersionOrder.reversed())
+    val segments = mutableListOf<Pair<MutableList<String>, List<JarDownloads>>>()
+    for (release in releases) {
+        val covering = LOADERS.mapNotNull { loader -> jars.find { it.loader == loader && release in it.minecraftReleases } }
+        val last = segments.lastOrNull()
+        if (last?.second == covering) last.first += release else segments += mutableListOf(release) to covering
+    }
+    return segments.map { (segment, covering) ->
+        val label = if (segment.size == 1) segment.single() else "${segment.last()}-${segment.first()}"
+        val loaders = covering.joinToString(" · ") { jar ->
+            "${loaderName(jar.loader)} " + jar.links.joinToString(" ") { (platform, link) -> "[$platform]($link)" }
+        }
+        "- **$label** · $loaders"
+    }
+}
+
+fun discordAnnouncement(modVersion: String, changelog: String, jars: List<JarDownloads>, githubRelease: String): String {
     val heading = "# Marlow's Crystal Optimizer $modVersion"
     val downloads = buildString {
         append("### Download")
-        for (range in ranges) {
-            val links = range.links.joinToString(" · ") { (platform, link) -> "[$platform]($link)" }
-            append("\n- **${range.minecraftRange}** · $links")
-        }
+        downloadLines(jars).forEach { append("\n").append(it) }
         append("\n- **Every version** · [GitHub]($githubRelease)")
     }
 

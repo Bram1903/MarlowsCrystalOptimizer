@@ -3,6 +3,7 @@ package com.deathmotion.marlowcrystal.packet.impl;
 import com.deathmotion.marlowcrystal.packet.ModPackets;
 import com.deathmotion.marlowcrystal.versioning.MCOVersion;
 import com.deathmotion.marlowcrystal.versioning.MCOVersions;
+import com.deathmotion.marlowcrystal.versioning.ModLoader;
 import net.minecraft.network.FriendlyByteBuf;
 //? if >=1.20.5 {
 import net.minecraft.network.codec.StreamCodec;
@@ -18,11 +19,11 @@ import org.jetbrains.annotations.NotNull;
 //?}
 
 //? if >=1.20.2 {
-public record VersionPacket(int major, int minor, int patch, boolean snapshot, String commit, boolean dirty,
-                            long buildTimestamp) implements CustomPacketPayload {
+public record VersionPacket(int major, int minor, int patch, boolean snapshot, ModLoader loader, String commit,
+                            boolean dirty, long buildTimestamp) implements CustomPacketPayload {
 //?} else {
-/*public record VersionPacket(int major, int minor, int patch, boolean snapshot, String commit, boolean dirty,
-                            long buildTimestamp) {
+/*public record VersionPacket(int major, int minor, int patch, boolean snapshot, ModLoader loader, String commit,
+                            boolean dirty, long buildTimestamp) {
 *///?}
 
     private static final int COMMIT_MAX_LENGTH = 40;
@@ -31,7 +32,7 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, S
     public static VersionPacket current() {
         MCOVersion version = MCOVersions.CURRENT;
         String commit = MCOVersions.COMMIT;
-        return new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot(),
+        return new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot(), MCOVersions.LOADER,
                 commit != null ? commit : "", MCOVersions.DIRTY, MCOVersions.BUILD_TIMESTAMP.toEpochMilli());
     }
 
@@ -40,6 +41,7 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, S
         buf.writeVarInt(packet.minor());
         buf.writeVarInt(packet.patch());
         buf.writeBoolean(packet.snapshot());
+        buf.writeVarInt(packet.loader().networkId());
         buf.writeUtf(packet.commit(), COMMIT_MAX_LENGTH);
         buf.writeBoolean(packet.dirty());
         buf.writeLong(packet.buildTimestamp());
@@ -61,11 +63,11 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, S
             int patch = buf.readVarInt();
             boolean snapshot = buf.readBoolean();
             if (!buf.isReadable()) {
-                return new VersionPacket(major, minor, patch, snapshot, "", false, 0L);
+                return new VersionPacket(major, minor, patch, snapshot, null, "", false, 0L);
             }
 
-            VersionPacket packet = new VersionPacket(major, minor, patch, snapshot, buf.readUtf(COMMIT_MAX_LENGTH),
-                    buf.readBoolean(), buf.readLong());
+            VersionPacket packet = new VersionPacket(major, minor, patch, snapshot, ModLoader.byNetworkId(buf.readVarInt()),
+                    buf.readUtf(COMMIT_MAX_LENGTH), buf.readBoolean(), buf.readLong());
             buf.skipBytes(buf.readableBytes());
             return packet;
         }

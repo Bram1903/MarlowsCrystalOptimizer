@@ -18,7 +18,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "com.deathmotion.marlowcrystal.MarlowCrystal"
+      "com.deathmotion.marlowcrystal.loader.fabric.MarlowCrystalFabric"
     ],
     "modmenu": [
       "com.deathmotion.marlowcrystal.integration.modmenu.ModMenuIntegration"

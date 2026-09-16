@@ -1,6 +1,7 @@
 package com.deathmotion.marlowcrystal.update;
 
 import com.deathmotion.marlowcrystal.versioning.MCOVersion;
+import com.deathmotion.marlowcrystal.versioning.MCOVersions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -21,7 +22,7 @@ public final class ModrinthSource implements UpdateSourceClient {
     @Override
     public UpdateResult check(MCOVersion currentVersion, String minecraftVersion) throws IOException, InterruptedException {
         URI uri = URI.create("https://api.modrinth.com/v2/project/" + PROJECT_ID + "/version"
-                + "?loaders=" + encode("[\"fabric\"]")
+                + "?loaders=" + encode("[\"" + MCOVersions.LOADER.id() + "\"]")
                 + "&game_versions=" + encode("[\"" + minecraftVersion + "\"]"));
 
         MCOVersion latest = null;

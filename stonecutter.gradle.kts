@@ -3,9 +3,19 @@ plugins {
     id("marlowcrystal.release")
 }
 
-stonecutter active "26.1"
+stonecutter active "26.1-fabric"
 
 stonecutter parameters {
+    val (version, loader) = current.project.split('-', limit = 2)
+
+    properties {
+        tags(version, loader)
+    }
+
+    constants {
+        match(loader, "fabric", "neoforge")
+    }
+
     replacements {
         string(current.parsed >= "1.21.5") {
             replace("MobEffects.DAMAGE_BOOST", "MobEffects.STRENGTH")

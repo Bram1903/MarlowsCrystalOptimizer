@@ -1,5 +1,8 @@
 package marlowcrystal
 
+import marlowcrystal.build.isFabric
+import marlowcrystal.build.loader
+import marlowcrystal.build.loaderName
 import marlowcrystal.build.modJarFile
 import marlowcrystal.build.releaseDefaults
 import marlowcrystal.build.requiredJava
@@ -28,22 +31,24 @@ publishMods {
     releaseDefaults(project, stonecutterProperty("mod.version"))
     file = modJarFile
     version = providers.provider { project.version.toString() }
-    displayName = "${stonecutterProperty("mod.name")} ${stonecutterProperty("mod.version")} for ${stonecutterProperty("mod.mc_range")}"
-    modLoaders.add("fabric")
+    displayName = "${stonecutterProperty("mod.name")} ${stonecutterProperty("mod.version")} for ${loaderName(loader)} ${stonecutterProperty("mod.mc_range")}"
+    modLoaders.add(loader)
 
     modrinth {
-        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        accessToken = providers.environmentVariable("MCO_MODRINTH_TOKEN")
         projectId = "ozpC8eDC"
         minecraftVersions.addAll(releaseTargets)
         // Unset, Modrinth silently takes whatever the project page says.
         environment = CLIENT_ONLY
-        requires("fabric-api")
-        optional("modmenu")
+        if (isFabric) {
+            requires("fabric-api")
+            optional("modmenu")
+        }
         if (hasYacl) optional("yacl")
     }
 
     curseforge {
-        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        accessToken = providers.environmentVariable("MCO_CURSEFORGE_TOKEN")
         projectId = "1554587"
         // The plugin cannot link an uploaded CurseForge file without it.
         projectSlug = "marlow-crystal-optimizer"
@@ -51,13 +56,15 @@ publishMods {
         client = true
         server = false
         javaVersions.add(requiredJava)
-        requires("fabric-api")
-        optional("modmenu")
+        if (isFabric) {
+            requires("fabric-api")
+            optional("modmenu")
+        }
         if (hasYacl) optional("yacl")
     }
 
     github {
-        accessToken = providers.environmentVariable("GITHUB_TOKEN")
+        accessToken = providers.environmentVariable("MCO_GITHUB_TOKEN")
         parent(rootProject.tasks.named("publishGithub"))
     }
 }

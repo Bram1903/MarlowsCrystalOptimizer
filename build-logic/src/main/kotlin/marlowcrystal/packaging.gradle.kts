@@ -1,5 +1,7 @@
 package marlowcrystal
 
+import marlowcrystal.build.isFabric
+import marlowcrystal.build.loader
 import marlowcrystal.build.modJarFile
 import marlowcrystal.build.stonecutterProperty
 
@@ -7,7 +9,8 @@ plugins {
     java
 }
 
-version = "${stonecutterProperty("mod.version")}+mc${stonecutterProperty("mod.mc_range")}"
+// Fabric jars kept their names from before NeoForge support.
+version = "${stonecutterProperty("mod.version")}+mc${stonecutterProperty("mod.mc_range")}" + if (isFabric) "" else "-$loader"
 base.archivesName = stonecutterProperty("mod.archive")
 
 tasks.withType<Jar>().configureEach {

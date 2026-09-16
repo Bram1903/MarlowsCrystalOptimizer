@@ -19,6 +19,9 @@ abstract class GenerateVersionsTask : DefaultTask() {
     abstract val minecraftRange: Property<String>
 
     @get:Input
+    abstract val loader: Property<String>
+
+    @get:Input
     @get:Optional
     abstract val commit: Property<String>
 
@@ -53,6 +56,7 @@ abstract class GenerateVersionsTask : DefaultTask() {
 
                 public static final String RAW = "$version";
                 public static final String MINECRAFT_RANGE = "${minecraftRange.get()}";
+                public static final ModLoader LOADER = ModLoader.${loader.get().uppercase()};
                 public static final String COMMIT = ${quoted(fullCommit)};
                 public static final boolean DIRTY = ${dirty.get()};
                 public static final Instant BUILD_TIMESTAMP = Instant.ofEpochMilli(${System.currentTimeMillis()}L);
