@@ -14,6 +14,9 @@ import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+//? if >=1.20.2 {
+import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationConnectionEvents;
+//?}
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 //? if >=1.20.5 {
@@ -57,6 +60,9 @@ public class MarlowCrystalFabric implements ClientModInitializer {
             *///?}
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> MarlowCrystal.getInstance().onDisconnect());
+        //? if >=1.20.2 {
+        ClientConfigurationConnectionEvents.DISCONNECT.register((handler, client) -> MarlowCrystal.getInstance().onDisconnect());
+        //?}
 
         //? if >=1.20.5 {
         ClientPlayNetworking.registerGlobalReceiver(OptOutPacket.TYPE, (payload, context) -> {
