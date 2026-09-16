@@ -2,7 +2,7 @@
   "marlowcrystal.config.title": "Marlow's Crystal Optimizer",
   "marlowcrystal.config.category.crystals": "Crystals",
   "marlowcrystal.config.keep_render": "Keep Render",
-  "marlowcrystal.config.keep_render.description": "Keeps a broken crystal visible until the server removes it. It stops blocking your crosshair and the next placement straight away. If the server has not removed it after 1.5 seconds, it can be hit again.",
+  "marlowcrystal.config.keep_render.description": "Keeps a broken crystal visible until the server removes it. It stops blocking your crosshair and the next placement straight away. If the server did not break it, it can be hit again as soon as that is known, and at the latest after 1.5 seconds.",
   "marlowcrystal.config.category.updates": "Updates",
   "marlowcrystal.config.update_source": "Update Source",
   "marlowcrystal.config.update_source.description": "Where to look for new versions built for your Minecraft version and mod loader.",

@@ -34,7 +34,7 @@ public final class CrystalBreaker {
             return;
         }
 
-        KeptCrystals.keep(crystal);
+        KeptCrystals.keep(crystal, ((SequencedLevel) level).marlowcrystal$blockSequence());
         retargetCrosshair(client, crystal);
     }
 

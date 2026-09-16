@@ -37,9 +37,10 @@
   a click in that same tick still went to the broken crystal instead of what stood behind it. The mod
   looked for the crystal where Minecraft only stored living entities and item frames before 1.20.3.
 - Fixed a crystal the server did not break staying invisible until you moved out of its range, for
-  example one that cannot be damaged or a hit a plugin cancelled. The server never confirms a hit, so a
-  broken crystal is now hidden rather than removed, and comes back if the server has not removed it after
-  1.5 seconds.
+  example one that cannot be damaged or a hit a plugin cancelled. A broken crystal is now hidden rather
+  than removed. It comes back as soon as the server confirms a block you placed or started breaking after
+  the hit without having removed the crystal first, and otherwise after 1.5 seconds, so clicks stop going
+  through a crystal that is still there.
 - Fixed a crystal outside the world border disappearing when hit. The server ignores those hits.
 - Fixed a crystal disappearing without breaking when hit with Weakness just as Strength ran out. The
   server ends Strength before the client is told, so its last 1.5 seconds no longer count.

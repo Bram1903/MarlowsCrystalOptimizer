@@ -14,10 +14,19 @@ public class EndCrystalMixin implements KeptCrystal {
     @Unique
     private long marlowcrystal$keptAt;
 
+    @Unique
+    private int marlowcrystal$sequence;
+
     @Override
-    public void marlowcrystal$keep(long keptAt) {
+    public void marlowcrystal$keep(long keptAt, int sequence) {
         marlowcrystal$kept = true;
         marlowcrystal$keptAt = keptAt;
+        marlowcrystal$sequence = sequence;
+    }
+
+    @Override
+    public void marlowcrystal$release() {
+        marlowcrystal$kept = false;
     }
 
     @Override
@@ -28,5 +37,10 @@ public class EndCrystalMixin implements KeptCrystal {
     @Override
     public long marlowcrystal$keptAt() {
         return marlowcrystal$keptAt;
+    }
+
+    @Override
+    public int marlowcrystal$sequence() {
+        return marlowcrystal$sequence;
     }
 }
