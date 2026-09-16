@@ -24,6 +24,8 @@ public final class ModConfig {
 
     private volatile UpdateSource updateSource = UpdateSource.MODRINTH;
 
+    private volatile boolean experimentalBuilds;
+
     private volatile boolean keepRender;
 
     private ModConfig() {
@@ -60,10 +62,20 @@ public final class ModConfig {
         return source != null ? source : UpdateSource.MODRINTH;
     }
 
-    // Only the YACL settings screen calls this, which drops it below 1.20.2 and on NeoForge.
+    // Only the YACL settings screen calls this, and Stonecutter drops that screen below 1.20.2.
     @SuppressWarnings("unused")
     public void setUpdateSource(UpdateSource updateSource) {
         this.updateSource = updateSource;
+    }
+
+    public boolean isExperimentalBuilds() {
+        return experimentalBuilds;
+    }
+
+    // Only the YACL settings screen calls this, and Stonecutter drops that screen below 1.20.2.
+    @SuppressWarnings("unused")
+    public void setExperimentalBuilds(boolean experimentalBuilds) {
+        this.experimentalBuilds = experimentalBuilds;
     }
 
     public boolean isKeepRender() {

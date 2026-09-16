@@ -11,6 +11,7 @@ import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
 //? if >=1.20.5 {
 import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
 //?}
+import com.deathmotion.marlowcrystal.update.UpdateService;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
@@ -20,6 +21,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLConfig;
 //? if >=1.20.5 {
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 //?} else {
@@ -35,6 +37,8 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import net.neoforged.neoforge.network.registration.IPayloadRegistrar;
 ^///?}
+
+import java.util.concurrent.CompletableFuture;
 
 @Mod(MarlowCrystal.MOD_ID)
 public class MarlowCrystalNeoForge {
@@ -54,6 +58,11 @@ public class MarlowCrystalNeoForge {
 
         if (ModList.get().isLoaded(YACL_MOD_ID)) {
             registerConfigScreen(container);
+        }
+
+        // Turning off NeoForge's own version check in fml.toml turns this one off too.
+        if (FMLConfig.getBoolConfigValue(FMLConfig.ConfigValue.VERSION_CHECK)) {
+            CompletableFuture.runAsync(UpdateService.getInstance()::check);
         }
     }
 

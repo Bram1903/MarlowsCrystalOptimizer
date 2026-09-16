@@ -9,6 +9,8 @@ import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -16,7 +18,7 @@ import java.util.regex.Pattern;
 
 public final class GitHubSource implements UpdateSourceClient {
 
-    private static final URI LATEST_RELEASE = URI.create("https://api.github.com/repos/Bram1903/MarlowsCrystalOptimizer/releases/latest");
+    private static final URI RELEASES = URI.create("https://api.github.com/repos/Bram1903/MarlowsCrystalOptimizer/releases?per_page=100");
 
     private static final Pattern RELEASE_VERSION = Pattern.compile("\\d+(?:\\.\\d+)*");
 
@@ -26,12 +28,8 @@ public final class GitHubSource implements UpdateSourceClient {
     private static final String LOADER_SUFFIX = MCOVersions.LOADER == ModLoader.FABRIC ? null : MCOVersions.LOADER.id();
 
     private static boolean supports(JsonArray assets, String minecraftVersion) {
-        if (assets == null || !RELEASE_VERSION.matcher(minecraftVersion).matches()) {
-            return true;
-        }
-
         boolean ranged = false;
-        for (JsonElement asset : assets) {
+        for (JsonElement asset : assets != null ? assets : new JsonArray()) {
             Matcher matcher = ASSET_RANGE.matcher(asset.getAsJsonObject().get("name").getAsString());
             if (!matcher.find()) {
                 continue;
@@ -41,6 +39,9 @@ public final class GitHubSource implements UpdateSourceClient {
             if (!Objects.equals(matcher.group(3), LOADER_SUFFIX)) {
                 continue;
             }
+            if (!RELEASE_VERSION.matcher(minecraftVersion).matches()) {
+                return true;
+            }
 
             String lower = matcher.group(1);
             String upper = matcher.group(2) != null ? matcher.group(2) : lower;
@@ -49,7 +50,8 @@ public final class GitHubSource implements UpdateSourceClient {
                 return true;
             }
         }
-        return !ranged;
+        // Releases before 2.0.0 named their jars by hand, and they were all Fabric.
+        return !ranged && MCOVersions.LOADER == ModLoader.FABRIC;
     }
 
     private static int compare(String left, String right) {
@@ -65,19 +67,19 @@ public final class GitHubSource implements UpdateSourceClient {
     }
 
     @Override
-    public UpdateResult check(MCOVersion currentVersion, String minecraftVersion) throws IOException, InterruptedException {
-        JsonObject release = JsonHttp.get(LATEST_RELEASE).getAsJsonObject();
-
-        Optional<MCOVersion> latest = MCOVersion.parse(release.get("tag_name").getAsString());
-        if (latest.isEmpty() || !supports(release.getAsJsonArray("assets"), minecraftVersion)) {
-            return UpdateResult.none();
+    public List<PublishedBuild> builds(String minecraftVersion) throws IOException, InterruptedException {
+        List<PublishedBuild> builds = new ArrayList<>();
+        for (JsonElement element : JsonHttp.get(RELEASES).getAsJsonArray()) {
+            JsonObject release = element.getAsJsonObject();
+            Optional<MCOVersion> version = MCOVersion.parse(release.get("tag_name").getAsString());
+            if (version.isPresent() && supports(release.getAsJsonArray("assets"), minecraftVersion)) {
+                builds.add(new PublishedBuild(
+                        version.get(),
+                        release.get("html_url").getAsString(),
+                        release.get("prerelease").getAsBoolean() ? ReleaseChannel.BETA : ReleaseChannel.RELEASE
+                ));
+            }
         }
-
-        return new UpdateResult(
-                latest.get().isNewerThan(currentVersion),
-                latest.get(),
-                release.get("html_url").getAsString(),
-                release.get("prerelease").getAsBoolean() ? ReleaseChannel.BETA : ReleaseChannel.RELEASE
-        );
+        return builds;
     }
 }

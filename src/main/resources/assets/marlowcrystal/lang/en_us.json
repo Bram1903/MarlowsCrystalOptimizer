@@ -5,5 +5,7 @@
   "marlowcrystal.config.keep_render.description": "Keeps a broken crystal visible until the server removes it. It stops blocking your crosshair and the next placement straight away. If the server does not remove it in time, it can be hit again. That time follows how long your recent breaks took to confirm.",
   "marlowcrystal.config.category.updates": "Updates",
   "marlowcrystal.config.update_source": "Update Source",
-  "marlowcrystal.config.update_source.description": "Where to look for new versions. Modrinth only offers releases built for your Minecraft version, GitHub follows the latest release."
+  "marlowcrystal.config.update_source.description": "Where to look for new versions built for your Minecraft version and mod loader.",
+  "marlowcrystal.config.experimental_builds": "Experimental Builds",
+  "marlowcrystal.config.experimental_builds.description": "Also offers beta builds when looking for new versions, not only full releases. Beta builds can still change before they are released."
 }

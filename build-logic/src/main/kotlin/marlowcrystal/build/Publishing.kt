@@ -23,38 +23,28 @@ val minecraftVersionOrder: Comparator<String> = Comparator { left, right ->
         .firstOrNull { it != 0 } ?: 0
 }
 
-private val LOADERS = listOf("fabric", "neoforge")
+// CurseForge filters its file list by these mod loader ids.
+private class Loader(val displayName: String, val curseforgeId: Int)
 
-fun loaderName(loader: String): String = when (loader) {
-    "fabric" -> "Fabric"
-    "neoforge" -> "NeoForge"
-    else -> error("Unknown loader $loader")
-}
+private val LOADERS = mapOf("fabric" to Loader("Fabric", 4), "neoforge" to Loader("NeoForge", 6))
 
-data class JarDownloads(val loader: String, val minecraftReleases: List<String>, val links: List<Pair<String, String>>)
+fun loaderName(loader: String): String = LOADERS[loader]?.displayName ?: error("Unknown loader $loader")
+
+data class ReleasedJar(val loader: String, val minecraftReleases: List<String>)
+
+private const val MODRINTH_PROJECT = "https://modrinth.com/mod/marlow-crystal-optimizer"
+private const val CURSEFORGE_PROJECT = "https://www.curseforge.com/minecraft/mc-mods/marlow-crystal-optimizer"
 
 private const val DISCORD_DESCRIPTION_LIMIT = 4096
 
-// Loaders split their jars at different Minecraft versions, so the list is cut wherever any jar starts or ends,
-// which leaves at most one jar per loader on each line.
-private fun downloadLines(jars: List<JarDownloads>): List<String> {
-    val releases = jars.flatMap { it.minecraftReleases }.distinct().sortedWith(minecraftVersionOrder.reversed())
-    val segments = mutableListOf<Pair<MutableList<String>, List<JarDownloads>>>()
-    for (release in releases) {
-        val covering = LOADERS.mapNotNull { loader -> jars.find { it.loader == loader && release in it.minecraftReleases } }
-        val last = segments.lastOrNull()
-        if (last?.second == covering) last.first += release else segments += mutableListOf(release) to covering
-    }
-    return segments.map { (segment, covering) ->
-        val label = if (segment.size == 1) segment.single() else "${segment.last()}-${segment.first()}"
-        val loaders = covering.joinToString(" · ") { jar ->
-            "${loaderName(jar.loader)} " + jar.links.joinToString(" ") { (platform, link) -> "[$platform]($link)" }
-        }
-        "- **$label** · $loaders"
-    }
+private fun downloadLines(jars: List<ReleasedJar>): List<String> = LOADERS.mapNotNull { (id, loader) ->
+    val releases = jars.filter { it.loader == id }.flatMap { it.minecraftReleases }.sortedWith(minecraftVersionOrder)
+    if (releases.isEmpty()) return@mapNotNull null
+    "- **${loader.displayName}** ${releases.first()}-${releases.last()} · [Modrinth]($MODRINTH_PROJECT/versions?l=$id) " +
+        "[CurseForge]($CURSEFORGE_PROJECT/files/all?gameVersionTypeId=${loader.curseforgeId})"
 }
 
-fun discordAnnouncement(modVersion: String, changelog: String, jars: List<JarDownloads>, githubRelease: String): String {
+fun discordAnnouncement(modVersion: String, changelog: String, jars: List<ReleasedJar>, githubRelease: String): String {
     val heading = "# Marlow's Crystal Optimizer $modVersion"
     val downloads = buildString {
         append("### Download")

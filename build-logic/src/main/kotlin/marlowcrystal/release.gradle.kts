@@ -1,7 +1,7 @@
 package marlowcrystal
 
-import marlowcrystal.build.JarDownloads
 import marlowcrystal.build.PUBLISH_SECRETS
+import marlowcrystal.build.ReleasedJar
 import marlowcrystal.build.discordAnnouncement
 import marlowcrystal.build.isPublishDryRun
 import marlowcrystal.build.loader
@@ -9,7 +9,6 @@ import marlowcrystal.build.minecraftVersionOrder
 import marlowcrystal.build.releaseDefaults
 import marlowcrystal.build.stonecutterList
 import me.modmuss50.mpp.PublishModTask
-import me.modmuss50.mpp.PublishResult
 import java.util.concurrent.Callable
 
 plugins {
@@ -47,11 +46,6 @@ subprojects.sortedWith(uploadOrder).zipWithNext { previous, next ->
     next.tasks.withType<PublishModTask>().configureEach { mustRunAfter(previous.tasks.withType<PublishModTask>()) }
 }
 
-// PublishResult is internal to the plugin, but it is what the plugin links with, and a change to it fails the
-// build instead of posting a wrong link.
-fun uploadLink(project: Project, task: String): String =
-    PublishResult.fromJson(project.tasks.named<PublishModTask>(task).get().result.get().asFile.readText()).link
-
 publishMods {
     releaseDefaults(project, modVersion)
     version = modVersion
@@ -82,15 +76,8 @@ publishMods {
         // The plugin posts a separate card per upload; the content lists the downloads instead.
         publishResults.setFrom()
 
-        // Upload links only exist once the uploads have run.
         content = providers.provider {
-            val jars = subprojects.map { jar ->
-                JarDownloads(
-                    jar.loader,
-                    jar.stonecutterList("mod", "mc_releases"),
-                    listOf("Modrinth" to uploadLink(jar, "publishModrinth"), "CurseForge" to uploadLink(jar, "publishCurseforge")),
-                )
-            }
+            val jars = subprojects.map { ReleasedJar(it.loader, it.stonecutterList("mod", "mc_releases")) }
             discordAnnouncement(modVersion, releaseNotes.get(), jars, githubRelease)
         }
 

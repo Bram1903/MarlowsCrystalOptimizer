@@ -79,14 +79,16 @@ Both mods are optional.
 | [Mod Menu](https://modrinth.com/mod/modmenu)         | Update badge in the mod list, Fabric only                | 1.20.5+   |
 | [YetAnotherConfigLib](https://modrinth.com/mod/yacl) | Settings screen, needs Mod Menu on Fabric                | 1.20.2+   |
 
-On Fabric the update check only runs when Mod Menu asks for it, once per session. Modrinth is the default source and
-only offers releases for your Minecraft version. GitHub follows the latest release. On NeoForge the mod list shows
-updates from Modrinth itself, so the source cannot be changed there.
+The update check looks at Modrinth, or at GitHub when that is picked under Updates, and only offers versions built for
+your Minecraft version and mod loader. It skips beta builds unless Experimental Builds is turned on, which takes effect
+as soon as the settings are saved. On Fabric it runs when Mod Menu asks for it, once per session, and Mod Menu's own
+Update Channel setting does not apply to it. On NeoForge it runs at startup, unless the version check is turned off in
+`config/fml.toml`, and shows in NeoForge's own mod list.
 
 Keep Render leaves a broken crystal visible until the server removes it. It stops blocking the crosshair and the next
 placement straight away. It is off by default.
 
-Settings are stored in `config/marlowcrystal.json`, as `updateSource` and `keepRender`.
+Settings are stored in `config/marlowcrystal.json`, as `updateSource`, `experimentalBuilds` and `keepRender`.
 
 ## Opt-Out Support
 

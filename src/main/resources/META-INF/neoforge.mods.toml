@@ -13,7 +13,6 @@ logoFile = "assets/marlows-crystal-optimizer/icon.png"
 iconFile = "assets/marlows-crystal-optimizer/icon.png"
 iconBlur = true
 displayURL = "https://modrinth.com/mod/marlow-crystal-optimizer"
-updateJSONURL = "https://api.modrinth.com/updates/ozpC8eDC/forge_updates.json?neoforge=only"
 displayTest = "IGNORE_ALL_VERSION"
 
 [[mixins]]

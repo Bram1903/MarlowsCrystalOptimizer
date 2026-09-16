@@ -61,13 +61,11 @@ public class ModMenuIntegration implements ModMenuApi {
             return latest().downloadUrl();
         }
 
+        // Experimental Builds already decides whether betas are offered. Mod Menu would also hide anything below its
+        // own Update Channel setting, which defaults to Release.
         @Override
         public UpdateChannel getUpdateChannel() {
-            return switch (latest().channel()) {
-                case RELEASE -> UpdateChannel.RELEASE;
-                case BETA -> UpdateChannel.BETA;
-                case ALPHA -> UpdateChannel.ALPHA;
-            };
+            return UpdateChannel.RELEASE;
         }
     }
     //?}

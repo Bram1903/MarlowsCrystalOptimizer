@@ -1,10 +1,9 @@
 package com.deathmotion.marlowcrystal.update;
 
-import com.deathmotion.marlowcrystal.versioning.MCOVersion;
-
 import java.io.IOException;
+import java.util.List;
 
 public interface UpdateSourceClient {
 
-    UpdateResult check(MCOVersion currentVersion, String minecraftVersion) throws IOException, InterruptedException;
+    List<PublishedBuild> builds(String minecraftVersion) throws IOException, InterruptedException;
 }
