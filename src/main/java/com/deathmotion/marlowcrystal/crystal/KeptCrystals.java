@@ -14,14 +14,17 @@ public final class KeptCrystals {
     // Only reached when no block action followed the hit, so no acknowledgement can tell a rejected hit apart.
     private static final long RELEASE_AFTER = TimeUnit.MILLISECONDS.toNanos(1500);
 
-    private static final List<EndCrystal> kept = new ArrayList<>();
+    private final List<EndCrystal> kept = new ArrayList<>();
 
-    private static long lastKeptAt;
+    private long lastKeptAt;
 
-    private KeptCrystals() {
+    private static boolean isVisible(Entity entity, long keptSince) {
+        return !(entity instanceof KeptCrystal crystal)
+                || !crystal.marlowcrystal$isKept()
+                || crystal.marlowcrystal$keptAt() - keptSince <= 0;
     }
 
-    public static void keep(EndCrystal crystal, int sequence) {
+    public void keep(EndCrystal crystal, int sequence) {
         long now = System.nanoTime();
         forgetSettled(now - RELEASE_AFTER);
         ((KeptCrystal) crystal).marlowcrystal$keep(now, sequence);
@@ -30,7 +33,7 @@ public final class KeptCrystals {
     }
 
     // The server sends a removal while it handles the hit, and an acknowledgement only after every packet before it.
-    public static void acknowledged(int sequence) {
+    public void acknowledged(int sequence) {
         forgetSettled(System.nanoTime() - RELEASE_AFTER);
         kept.removeIf(crystal -> {
             KeptCrystal keptCrystal = (KeptCrystal) crystal;
@@ -43,45 +46,39 @@ public final class KeptCrystals {
         });
     }
 
-    public static Predicate<? super Entity> hide(Predicate<? super Entity> predicate) {
+    public Predicate<? super Entity> hide(Predicate<? super Entity> predicate) {
         long keptSince = System.nanoTime() - RELEASE_AFTER;
-        if (!stillKeeping(keptSince)) {
+        if (nothingKept(keptSince)) {
             return predicate;
         }
 
-        return entity -> !isKeptSince(entity, keptSince) && predicate.test(entity);
+        return entity -> isVisible(entity, keptSince) && predicate.test(entity);
     }
 
-    public static Iterable<Entity> hide(Iterable<Entity> entities) {
+    public Iterable<Entity> hide(Iterable<Entity> entities) {
         long keptSince = System.nanoTime() - RELEASE_AFTER;
-        if (!stillKeeping(keptSince)) {
+        if (nothingKept(keptSince)) {
             return entities;
         }
 
-        return Iterables.filter(entities, entity -> !isKeptSince(entity, keptSince));
+        return Iterables.filter(entities, entity -> isVisible(entity, keptSince));
     }
 
-    private static void forgetSettled(long keptSince) {
-        kept.removeIf(crystal -> crystal.isRemoved() || !isKeptSince(crystal, keptSince));
+    private void forgetSettled(long keptSince) {
+        kept.removeIf(crystal -> crystal.isRemoved() || isVisible(crystal, keptSince));
     }
 
     // Cleared once everything has timed out, so a level left behind is not held on to.
-    private static boolean stillKeeping(long keptSince) {
+    private boolean nothingKept(long keptSince) {
         if (kept.isEmpty()) {
-            return false;
+            return true;
         }
 
         if (lastKeptAt - keptSince <= 0) {
             kept.clear();
-            return false;
+            return true;
         }
 
-        return true;
-    }
-
-    private static boolean isKeptSince(Entity entity, long keptSince) {
-        return entity instanceof KeptCrystal crystal
-                && crystal.marlowcrystal$isKept()
-                && crystal.marlowcrystal$keptAt() - keptSince > 0;
+        return false;
     }
 }

@@ -2,20 +2,21 @@
 /*package com.deathmotion.marlowcrystal.loader.neoforge;
 
 import com.deathmotion.marlowcrystal.MarlowCrystal;
-import com.deathmotion.marlowcrystal.integration.yacl.YaclScreenFactory;
-import com.deathmotion.marlowcrystal.listener.OptOutPacketListener;
-import com.deathmotion.marlowcrystal.packet.impl.ChallengePacket;
-import com.deathmotion.marlowcrystal.packet.impl.ChallengeResponsePacket;
-import com.deathmotion.marlowcrystal.packet.impl.OptOutAckPacket;
-import com.deathmotion.marlowcrystal.packet.impl.OptOutPacket;
+import com.deathmotion.marlowcrystal.integration.yacl.SettingsScreen;
+import com.deathmotion.marlowcrystal.network.ServerSession;
+import com.deathmotion.marlowcrystal.network.ServerboundPacket;
+import com.deathmotion.marlowcrystal.network.packet.ChallengePacket;
 //? if >=1.20.5 {
-import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
+import com.deathmotion.marlowcrystal.network.packet.ChallengeResponsePacket;
+import com.deathmotion.marlowcrystal.network.packet.OptOutAckPacket;
 //?}
-import com.deathmotion.marlowcrystal.update.UpdateService;
+import com.deathmotion.marlowcrystal.network.packet.OptOutPacket;
+//? if >=1.20.5 {
+import com.deathmotion.marlowcrystal.network.packet.VersionPacket;
+//?}
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -43,8 +44,6 @@ import java.util.concurrent.CompletableFuture;
 @Mod(MarlowCrystal.MOD_ID)
 public class MarlowCrystalNeoForge {
 
-    private static final String YACL_MOD_ID = "yet_another_config_lib_v3";
-
     public MarlowCrystalNeoForge(IEventBus modBus, ModContainer container, Dist dist) {
         if (!dist.isClient()) {
             return;
@@ -56,23 +55,23 @@ public class MarlowCrystalNeoForge {
         NeoForge.EVENT_BUS.addListener(MarlowCrystalNeoForge::onLoggingIn);
         NeoForge.EVENT_BUS.addListener(MarlowCrystalNeoForge::onLoggingOut);
 
-        if (ModList.get().isLoaded(YACL_MOD_ID)) {
+        if (ModList.get().isLoaded(SettingsScreen.YACL_MOD_ID)) {
             registerConfigScreen(container);
         }
 
         // Turning off NeoForge's own version check in fml.toml turns this one off too.
         if (FMLConfig.getBoolConfigValue(FMLConfig.ConfigValue.VERSION_CHECK)) {
-            CompletableFuture.runAsync(UpdateService.getInstance()::check);
+            CompletableFuture.runAsync(MarlowCrystal.get().updateCheck()::run);
         }
     }
 
     @SuppressWarnings("unused") // the lambda signature is fixed by NeoForge
     private static void registerConfigScreen(ModContainer container) {
         //? if >=1.20.5 {
-        container.registerExtensionPoint(IConfigScreenFactory.class, (owner, parent) -> YaclScreenFactory.create(parent));
+        container.registerExtensionPoint(IConfigScreenFactory.class, (owner, parent) -> SettingsScreen.create(parent));
         //?} else {
         /^container.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
-                () -> new ConfigScreenHandler.ConfigScreenFactory((client, parent) -> YaclScreenFactory.create(parent)));
+                () -> new ConfigScreenHandler.ConfigScreenFactory((client, parent) -> SettingsScreen.create(parent)));
         ^///?}
     }
 
@@ -101,32 +100,32 @@ public class MarlowCrystalNeoForge {
     }
     ^///?}
 
-    private static void onOptOut() {
-        OptOutPacketListener.handle(Minecraft.getInstance());
+    private static ServerSession session() {
+        return MarlowCrystal.get().serverSession();
+    }
 
-        send(OptOutAckPacket.INSTANCE);
+    private static void onOptOut() {
+        session().optOutReceived(Minecraft.getInstance(), MarlowCrystalNeoForge::send);
     }
 
     private static void onChallenge(ChallengePacket payload) {
-        send(new ChallengeResponsePacket(payload.challengeId()));
+        session().challengeReceived(payload.challengeId(), MarlowCrystalNeoForge::send);
     }
 
     private static void onLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
-        if (Minecraft.getInstance().isLocalServer()) return;
-
-        send(MarlowCrystal.getInstance().getVersionPacket());
+        session().joined(Minecraft.getInstance(), MarlowCrystalNeoForge::send);
     }
 
     private static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
-        MarlowCrystal.getInstance().onDisconnect();
+        session().disconnected();
     }
 
     // Through the connection because NeoForge's packet listener drops payloads on channels the server never
     // registered, which a Fabric client sends anyway.
-    private static void send(CustomPacketPayload payload) {
+    private static void send(ServerboundPacket packet) {
         ClientPacketListener connection = Minecraft.getInstance().getConnection();
         if (connection != null) {
-            connection.getConnection().send(new ServerboundCustomPayloadPacket(payload));
+            connection.getConnection().send(new ServerboundCustomPayloadPacket(packet));
         }
     }
 }

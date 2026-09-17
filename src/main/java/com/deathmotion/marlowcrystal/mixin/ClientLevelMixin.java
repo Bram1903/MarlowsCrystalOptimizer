@@ -1,7 +1,6 @@
 package com.deathmotion.marlowcrystal.mixin;
 
-import com.deathmotion.marlowcrystal.config.ModConfig;
-import com.deathmotion.marlowcrystal.crystal.KeptCrystals;
+import com.deathmotion.marlowcrystal.MarlowCrystal;
 import com.deathmotion.marlowcrystal.crystal.SequencedLevel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler;
@@ -29,13 +28,14 @@ public abstract class ClientLevelMixin implements SequencedLevel {
     // Hidden instead of removed, so a crystal the server did not break comes back once it is released.
     @Inject(method = "entitiesForRendering", at = @At("RETURN"), cancellable = true)
     private void marlowcrystal$hideKeptCrystals(CallbackInfoReturnable<Iterable<Entity>> cir) {
-        if (!ModConfig.getInstance().isKeepRender()) {
-            cir.setReturnValue(KeptCrystals.hide(cir.getReturnValue()));
+        MarlowCrystal mod = MarlowCrystal.get();
+        if (!mod.settings().isKeepRender()) {
+            cir.setReturnValue(mod.keptCrystals().hide(cir.getReturnValue()));
         }
     }
 
     @Inject(method = "handleBlockChangedAck", at = @At("HEAD"))
     private void marlowcrystal$releaseKeptCrystals(int sequence, CallbackInfo ci) {
-        KeptCrystals.acknowledged(sequence);
+        MarlowCrystal.get().keptCrystals().acknowledged(sequence);
     }
 }

@@ -1,6 +1,5 @@
-package com.deathmotion.marlowcrystal.packet.impl;
+package com.deathmotion.marlowcrystal.network.packet;
 
-import com.deathmotion.marlowcrystal.packet.ModPackets;
 import net.minecraft.network.FriendlyByteBuf;
 //? if >=1.20.5 {
 import net.minecraft.network.codec.StreamCodec;
@@ -22,9 +21,9 @@ public final class OptOutPacket implements CustomPacketPayload {
 *///?}
 
     //? if >=1.20.5 {
-    public static final CustomPacketPayload.Type<@NotNull OptOutPacket> TYPE = new CustomPacketPayload.Type<>(ModPackets.id("opt_out"));
+    public static final CustomPacketPayload.Type<@NotNull OptOutPacket> TYPE = new CustomPacketPayload.Type<>(Channels.of("opt_out"));
     //?} else {
-    /*public static final Identifier ID = ModPackets.id("opt_out");
+    /*public static final Identifier ID = Channels.of("opt_out");
     *///?}
 
     @SuppressWarnings("unused") // read by the >=1.20.5 stream codec below

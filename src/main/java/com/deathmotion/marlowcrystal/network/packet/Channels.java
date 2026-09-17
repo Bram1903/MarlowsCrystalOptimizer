@@ -1,12 +1,14 @@
-package com.deathmotion.marlowcrystal.packet;
+package com.deathmotion.marlowcrystal.network.packet;
 
 import com.deathmotion.marlowcrystal.MarlowCrystal;
 import net.minecraft.resources.Identifier;
 
-public final class ModPackets {
+final class Channels {
 
-    public static Identifier id(String path) {
+    private Channels() {
+    }
+
+    static Identifier of(String path) {
         return Identifier.tryParse(MarlowCrystal.MOD_ID + ":" + path);
     }
 }
-

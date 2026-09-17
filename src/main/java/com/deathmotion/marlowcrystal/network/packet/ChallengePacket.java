@@ -1,6 +1,5 @@
-package com.deathmotion.marlowcrystal.packet.impl;
+package com.deathmotion.marlowcrystal.network.packet;
 
-import com.deathmotion.marlowcrystal.packet.ModPackets;
 import net.minecraft.network.FriendlyByteBuf;
 //? if >=1.20.5 {
 import net.minecraft.network.codec.StreamCodec;
@@ -22,7 +21,7 @@ public record ChallengePacket(int challengeId) implements CustomPacketPayload {
 *///?}
 
     //? if >=1.20.5 {
-    public static final Type<@NotNull ChallengePacket> TYPE = new Type<>(ModPackets.id("challenge"));
+    public static final Type<@NotNull ChallengePacket> TYPE = new Type<>(Channels.of("challenge"));
 
     public static final StreamCodec<@NotNull FriendlyByteBuf, @NotNull ChallengePacket> STREAM_CODEC = new StreamCodec<>() {
         @Override
@@ -41,7 +40,7 @@ public record ChallengePacket(int challengeId) implements CustomPacketPayload {
         return TYPE;
     }
     //?} else {
-    /*public static final Identifier ID = ModPackets.id("challenge");
+    /*public static final Identifier ID = Channels.of("challenge");
 
     @SuppressWarnings("unused") // part of the <1.20.5 packet API; only the packets this client sends have a caller
     public void write(FriendlyByteBuf buf) {

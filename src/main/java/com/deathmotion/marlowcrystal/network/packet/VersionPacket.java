@@ -1,39 +1,28 @@
-package com.deathmotion.marlowcrystal.packet.impl;
+package com.deathmotion.marlowcrystal.network.packet;
 
-import com.deathmotion.marlowcrystal.packet.ModPackets;
-import com.deathmotion.marlowcrystal.versioning.MCOVersion;
-import com.deathmotion.marlowcrystal.versioning.MCOVersions;
-import com.deathmotion.marlowcrystal.versioning.ModLoader;
+import com.deathmotion.marlowcrystal.network.ServerboundPacket;
+import com.deathmotion.marlowcrystal.version.CurrentBuild;
+import com.deathmotion.marlowcrystal.version.ModLoader;
+import com.deathmotion.marlowcrystal.version.ModVersion;
 import net.minecraft.network.FriendlyByteBuf;
 //? if >=1.20.5 {
 import net.minecraft.network.codec.StreamCodec;
-//?}
-//? if >=1.20.2 {
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-//?}
-//? if <1.20.5 {
+//?} else {
 /*import net.minecraft.resources.Identifier;
 *///?}
-//? if >=1.20.2 {
 import org.jetbrains.annotations.NotNull;
-//?}
 
-//? if >=1.20.2 {
 public record VersionPacket(int major, int minor, int patch, boolean snapshot, ModLoader loader, String commit,
-                            boolean dirty, long buildTimestamp) implements CustomPacketPayload {
-//?} else {
-/*public record VersionPacket(int major, int minor, int patch, boolean snapshot, ModLoader loader, String commit,
-                            boolean dirty, long buildTimestamp) {
-*///?}
+                            boolean dirty, long buildTimestamp) implements ServerboundPacket {
 
     private static final int COMMIT_MAX_LENGTH = 40;
 
-    @SuppressWarnings("ConstantValue") // MCOVersions.COMMIT is generated and is null when git is unavailable
+    @SuppressWarnings("ConstantValue") // CurrentBuild.COMMIT is generated and is null when git is unavailable
     public static VersionPacket current() {
-        MCOVersion version = MCOVersions.CURRENT;
-        String commit = MCOVersions.COMMIT;
-        return new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot(), MCOVersions.LOADER,
-                commit != null ? commit : "", MCOVersions.DIRTY, MCOVersions.BUILD_TIMESTAMP.toEpochMilli());
+        ModVersion version = CurrentBuild.VERSION;
+        String commit = CurrentBuild.COMMIT;
+        return new VersionPacket(version.major(), version.minor(), version.patch(), version.snapshot(), CurrentBuild.LOADER,
+                commit != null ? commit : "", CurrentBuild.DIRTY, CurrentBuild.TIMESTAMP.toEpochMilli());
     }
 
     private static void encode(FriendlyByteBuf buf, VersionPacket packet) {
@@ -48,7 +37,7 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, M
     }
 
     //? if >=1.20.5 {
-    public static final Type<VersionPacket> TYPE = new Type<>(ModPackets.id("version"));
+    public static final Type<VersionPacket> TYPE = new Type<>(Channels.of("version"));
 
     public static final StreamCodec<FriendlyByteBuf, VersionPacket> STREAM_CODEC = new StreamCodec<>() {
         @Override
@@ -78,17 +67,16 @@ public record VersionPacket(int major, int minor, int patch, boolean snapshot, M
         return TYPE;
     }
     //?} else {
-    /*public static final Identifier ID = ModPackets.id("version");
+    /*public static final Identifier ID = Channels.of("version");
 
-    public void write(FriendlyByteBuf buf) {
-        encode(buf, this);
-    }
-    *///?}
-
-    //? if >=1.20.2 <1.20.5 {
-    /*@Override
+    @Override
     public @NotNull Identifier id() {
         return ID;
+    }
+
+    @Override
+    public void write(@NotNull FriendlyByteBuf buf) {
+        encode(buf, this);
     }
     *///?}
 }

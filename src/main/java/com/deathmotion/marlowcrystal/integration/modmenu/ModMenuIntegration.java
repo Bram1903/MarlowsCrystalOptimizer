@@ -1,12 +1,14 @@
 //? if fabric {
 package com.deathmotion.marlowcrystal.integration.modmenu;
 
+//? if >=1.20.5 {
+import com.deathmotion.marlowcrystal.MarlowCrystal;
+//?}
 //? if >=1.20.2 {
-import com.deathmotion.marlowcrystal.integration.yacl.YaclScreenFactory;
+import com.deathmotion.marlowcrystal.integration.yacl.SettingsScreen;
 //?}
 //? if >=1.20.5 {
-import com.deathmotion.marlowcrystal.update.UpdateResult;
-import com.deathmotion.marlowcrystal.update.UpdateService;
+import com.deathmotion.marlowcrystal.update.PublishedBuild;
 //?}
 //? if >=1.20.2 {
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
@@ -21,15 +23,17 @@ import com.terraformersmc.modmenu.api.UpdateInfo;
 import net.fabricmc.loader.api.FabricLoader;
 //?}
 
+//? if >=1.20.5 {
+import java.util.Optional;
+//?}
+
 public class ModMenuIntegration implements ModMenuApi {
 
     //? if >=1.20.2 {
-    private static final String YACL_MOD_ID = "yet_another_config_lib_v3";
-
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        if (FabricLoader.getInstance().isModLoaded(YACL_MOD_ID)) {
-            return YaclScreenFactory::create;
+        if (FabricLoader.getInstance().isModLoaded(SettingsScreen.YACL_MOD_ID)) {
+            return SettingsScreen::create;
         }
         return ModMenuApi.super.getModConfigScreenFactory();
     }
@@ -39,26 +43,26 @@ public class ModMenuIntegration implements ModMenuApi {
     @Override
     public UpdateChecker getUpdateChecker() {
         return () -> {
-            UpdateService.getInstance().check();
-            return LatestUpdateInfo.INSTANCE;
+            MarlowCrystal.get().updateCheck().run();
+            return AvailableUpdate.INSTANCE;
         };
     }
 
-    private enum LatestUpdateInfo implements UpdateInfo {
+    private enum AvailableUpdate implements UpdateInfo {
         INSTANCE;
 
-        private static UpdateResult latest() {
-            return UpdateService.getInstance().latest();
+        private static Optional<PublishedBuild> update() {
+            return MarlowCrystal.get().updateCheck().available();
         }
 
         @Override
         public boolean isUpdateAvailable() {
-            return latest().available();
+            return update().isPresent();
         }
 
         @Override
         public String getDownloadLink() {
-            return latest().downloadUrl();
+            return update().map(PublishedBuild::downloadUrl).orElse(null);
         }
 
         // Experimental Builds already decides whether betas are offered. Mod Menu would also hide anything below its

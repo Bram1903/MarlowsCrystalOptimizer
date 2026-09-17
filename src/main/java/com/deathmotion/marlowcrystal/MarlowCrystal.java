@@ -1,54 +1,86 @@
 package com.deathmotion.marlowcrystal;
 
-import com.deathmotion.marlowcrystal.packet.impl.VersionPacket;
-import com.deathmotion.marlowcrystal.state.OptOutState;
-import com.deathmotion.marlowcrystal.util.Logger;
-import com.deathmotion.marlowcrystal.versioning.MCOVersion;
-import com.deathmotion.marlowcrystal.versioning.MCOVersions;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
+import com.deathmotion.marlowcrystal.config.Settings;
+import com.deathmotion.marlowcrystal.config.SettingsFile;
+import com.deathmotion.marlowcrystal.crystal.CrystalBreaker;
+import com.deathmotion.marlowcrystal.crystal.KeptCrystals;
+import com.deathmotion.marlowcrystal.loader.LoaderAccess;
+//? if fabric {
+import com.deathmotion.marlowcrystal.loader.fabric.FabricLoaderAccess;
+//?} else {
+/*import com.deathmotion.marlowcrystal.loader.neoforge.NeoForgeLoaderAccess;
+*///?}
+import com.deathmotion.marlowcrystal.network.ServerSession;
+import com.deathmotion.marlowcrystal.update.UpdateCheck;
+import com.deathmotion.marlowcrystal.version.CurrentBuild;
+import com.deathmotion.marlowcrystal.version.ModVersion;
 
 public final class MarlowCrystal {
 
     public static final String MOD_ID = "marlowcrystal";
 
-    public static final Component PREFIX = Component.literal("[").withStyle(ChatFormatting.GRAY)
-            .append(Component.literal("Marlow's Crystal Optimizer").withStyle(ChatFormatting.AQUA))
-            .append(Component.literal("] ").withStyle(ChatFormatting.GRAY));
+    // Built on first use rather than by the entrypoint, because Mod Menu may run the update check first.
+    //? if fabric {
+    private static final MarlowCrystal INSTANCE = new MarlowCrystal(new FabricLoaderAccess());
+    //?} else {
+    /*private static final MarlowCrystal INSTANCE = new MarlowCrystal(new NeoForgeLoaderAccess());
+    *///?}
 
-    private static MarlowCrystal instance;
+    private final SettingsFile settingsFile;
 
-    private final OptOutState optOutState = new OptOutState();
+    private final Settings settings;
 
-    private final VersionPacket versionPacket = VersionPacket.current();
+    private final UpdateCheck updateCheck;
 
-    private MarlowCrystal() {
+    private final ServerSession serverSession = new ServerSession();
+
+    private final KeptCrystals keptCrystals = new KeptCrystals();
+
+    private final CrystalBreaker crystalBreaker = new CrystalBreaker(keptCrystals);
+
+    private MarlowCrystal(LoaderAccess loader) {
+        settingsFile = new SettingsFile(loader.configDirectory().resolve(MOD_ID + ".json"));
+        settings = settingsFile.load();
+        updateCheck = new UpdateCheck(settings, loader);
     }
 
-    public static MarlowCrystal getInstance() {
-        return instance;
+    public static MarlowCrystal get() {
+        return INSTANCE;
     }
 
     public static void initialize() {
-        instance = new MarlowCrystal();
-
-        MCOVersion version = MCOVersions.CURRENT;
+        ModVersion version = CurrentBuild.VERSION;
         String commit = version.commit();
-        new Logger().info("Mod initialized, version " + version.toDisplayString()
-                + " for Minecraft " + MCOVersions.MINECRAFT_RANGE
-                + " built " + MCOVersions.BUILD_TIMESTAMP
-                + (commit != null ? " (" + commit + (MCOVersions.DIRTY ? ", dirty" : "") + ")" : ""));
+        Log.info("Mod initialized, version " + version.toDisplayString()
+                + " for Minecraft " + CurrentBuild.MINECRAFT_RANGE
+                + " built " + CurrentBuild.TIMESTAMP
+                + (commit != null ? " (" + commit + (CurrentBuild.DIRTY ? ", dirty" : "") + ")" : ""));
     }
 
-    public OptOutState getOptOutState() {
-        return optOutState;
+    public Settings settings() {
+        return settings;
     }
 
-    public VersionPacket getVersionPacket() {
-        return versionPacket;
+    public UpdateCheck updateCheck() {
+        return updateCheck;
     }
 
-    public void onDisconnect() {
-        optOutState.reset();
+    public ServerSession serverSession() {
+        return serverSession;
+    }
+
+    public KeptCrystals keptCrystals() {
+        return keptCrystals;
+    }
+
+    public CrystalBreaker crystalBreaker() {
+        return crystalBreaker;
+    }
+
+    // Only the YACL settings screen calls this, and Stonecutter drops that screen below 1.20.2.
+    @SuppressWarnings("unused")
+    public void saveSettings() {
+        settingsFile.save(settings);
+        updateCheck.settingsSaved();
     }
 }

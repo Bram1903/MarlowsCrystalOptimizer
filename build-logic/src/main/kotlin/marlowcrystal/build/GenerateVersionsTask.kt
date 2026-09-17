@@ -44,26 +44,27 @@ abstract class GenerateVersionsTask : DefaultTask() {
         val (major, minor, patch, snapshot) = match.destructured
         val fullCommit = commit.orNull
 
-        val file = outputDirectory.file("com/deathmotion/marlowcrystal/versioning/MCOVersions.java").get().asFile
+        val root = outputDirectory.get().asFile
+        // Gradle keeps files it did not write this run, and a class left behind from a renamed package still compiles.
+        root.deleteRecursively()
+        val file = root.resolve("com/deathmotion/marlowcrystal/version/CurrentBuild.java")
         file.parentFile.mkdirs()
         file.writeText(
             """
-            package com.deathmotion.marlowcrystal.versioning;
+            package com.deathmotion.marlowcrystal.version;
 
             import java.time.Instant;
 
-            public final class MCOVersions {
+            public final class CurrentBuild {
 
-                public static final String RAW = "$version";
+                public static final ModVersion VERSION = new ModVersion($major, $minor, $patch, ${snapshot.isNotEmpty()}, ${quoted(fullCommit?.take(7))});
                 public static final String MINECRAFT_RANGE = "${minecraftRange.get()}";
                 public static final ModLoader LOADER = ModLoader.${loader.get().uppercase()};
                 public static final String COMMIT = ${quoted(fullCommit)};
                 public static final boolean DIRTY = ${dirty.get()};
-                public static final Instant BUILD_TIMESTAMP = Instant.ofEpochMilli(${System.currentTimeMillis()}L);
-                public static final MCOVersion CURRENT = new MCOVersion($major, $minor, $patch, ${snapshot.isNotEmpty()}, ${quoted(fullCommit?.take(7))});
-                public static final MCOVersion UNKNOWN = MCOVersion.of(0, 0, 0);
+                public static final Instant TIMESTAMP = Instant.ofEpochMilli(${System.currentTimeMillis()}L);
 
-                private MCOVersions() {
+                private CurrentBuild() {
                     throw new IllegalStateException();
                 }
             }

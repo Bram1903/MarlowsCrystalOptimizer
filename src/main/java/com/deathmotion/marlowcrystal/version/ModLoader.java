@@ -1,4 +1,4 @@
-package com.deathmotion.marlowcrystal.versioning;
+package com.deathmotion.marlowcrystal.version;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

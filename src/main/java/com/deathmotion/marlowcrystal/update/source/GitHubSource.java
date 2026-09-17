@@ -1,8 +1,11 @@
-package com.deathmotion.marlowcrystal.update;
+package com.deathmotion.marlowcrystal.update.source;
 
-import com.deathmotion.marlowcrystal.versioning.MCOVersion;
-import com.deathmotion.marlowcrystal.versioning.MCOVersions;
-import com.deathmotion.marlowcrystal.versioning.ModLoader;
+import com.deathmotion.marlowcrystal.update.BuildSource;
+import com.deathmotion.marlowcrystal.update.PublishedBuild;
+import com.deathmotion.marlowcrystal.update.ReleaseChannel;
+import com.deathmotion.marlowcrystal.version.CurrentBuild;
+import com.deathmotion.marlowcrystal.version.ModLoader;
+import com.deathmotion.marlowcrystal.version.ModVersion;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,7 +19,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class GitHubSource implements UpdateSourceClient {
+public final class GitHubSource implements BuildSource {
 
     private static final URI RELEASES = URI.create("https://api.github.com/repos/Bram1903/MarlowsCrystalOptimizer/releases?per_page=100");
 
@@ -25,7 +28,7 @@ public final class GitHubSource implements UpdateSourceClient {
     private static final Pattern ASSET_RANGE = Pattern.compile("\\+mc(\\d+(?:\\.\\d+)*)(?:-(\\d+(?:\\.\\d+)*))?(?:-([a-z]+))?\\.jar$");
 
     // Fabric jars kept the name they had before other loaders were supported.
-    private static final String LOADER_SUFFIX = MCOVersions.LOADER == ModLoader.FABRIC ? null : MCOVersions.LOADER.id();
+    private static final String LOADER_SUFFIX = CurrentBuild.LOADER == ModLoader.FABRIC ? null : CurrentBuild.LOADER.id();
 
     private static boolean supports(JsonArray assets, String minecraftVersion) {
         boolean ranged = false;
@@ -51,7 +54,7 @@ public final class GitHubSource implements UpdateSourceClient {
             }
         }
         // Releases before 2.0.0 named their jars by hand, and they were all Fabric.
-        return !ranged && MCOVersions.LOADER == ModLoader.FABRIC;
+        return !ranged && CurrentBuild.LOADER == ModLoader.FABRIC;
     }
 
     private static int compare(String left, String right) {
@@ -71,7 +74,7 @@ public final class GitHubSource implements UpdateSourceClient {
         List<PublishedBuild> builds = new ArrayList<>();
         for (JsonElement element : JsonHttp.get(RELEASES).getAsJsonArray()) {
             JsonObject release = element.getAsJsonObject();
-            Optional<MCOVersion> version = MCOVersion.parse(release.get("tag_name").getAsString());
+            Optional<ModVersion> version = ModVersion.parse(release.get("tag_name").getAsString());
             if (version.isPresent() && supports(release.getAsJsonArray("assets"), minecraftVersion)) {
                 builds.add(new PublishedBuild(
                         version.get(),

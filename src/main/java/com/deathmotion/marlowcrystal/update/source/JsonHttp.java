@@ -1,6 +1,6 @@
-package com.deathmotion.marlowcrystal.update;
+package com.deathmotion.marlowcrystal.update.source;
 
-import com.deathmotion.marlowcrystal.versioning.MCOVersions;
+import com.deathmotion.marlowcrystal.version.CurrentBuild;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
@@ -16,7 +16,7 @@ final class JsonHttp {
 
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
 
-    private static final String USER_AGENT = "Bram1903/MarlowsCrystalOptimizer/" + MCOVersions.CURRENT
+    private static final String USER_AGENT = "Bram1903/MarlowsCrystalOptimizer/" + CurrentBuild.VERSION
             + " (+https://github.com/Bram1903/MarlowsCrystalOptimizer)";
 
     private static final HttpClient CLIENT = HttpClient.newBuilder()

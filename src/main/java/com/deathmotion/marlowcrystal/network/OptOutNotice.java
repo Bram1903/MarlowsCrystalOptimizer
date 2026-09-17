@@ -1,7 +1,5 @@
-package com.deathmotion.marlowcrystal.listener;
+package com.deathmotion.marlowcrystal.network;
 
-import com.deathmotion.marlowcrystal.MarlowCrystal;
-import com.deathmotion.marlowcrystal.state.OptOutState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -11,12 +9,33 @@ import net.minecraft.network.chat.Style;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-public final class OptOutPacketListener {
+final class OptOutNotice {
 
-    private OptOutPacketListener() {
+    private static final Component PREFIX = Component.literal("[").withStyle(ChatFormatting.GRAY)
+            .append(Component.literal("Marlow's Crystal Optimizer").withStyle(ChatFormatting.AQUA))
+            .append(Component.literal("] ").withStyle(ChatFormatting.GRAY));
+
+    private OptOutNotice() {
     }
 
-    private static Component optimizerDisabledMessage() {
+    static void showLater(Minecraft client) {
+        CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS)
+                .execute(() -> client.execute(() -> show(client)));
+    }
+
+    private static void show(Minecraft client) {
+        if (client.player == null) {
+            return;
+        }
+
+        //? if >=26.1 {
+        client.player.sendSystemMessage(message());
+        //?} else {
+        /*client.player.displayClientMessage(message(), false);
+        *///?}
+    }
+
+    private static Component message() {
         Component hover = Component.empty()
                 .append(Component.literal("Why is this disabled?\n").withStyle(ChatFormatting.AQUA))
                 .append(Component.literal("• This server has requested Marlow's Crystal Optimizer to be disabled.\n").withStyle(ChatFormatting.GRAY))
@@ -28,34 +47,11 @@ public final class OptOutPacketListener {
         //?} else {
         /*Style hoverStyle = Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover));
         *///?}
-        Component message = Component.literal("Optimizer disabled on this server.")
+        Component text = Component.literal("Optimizer disabled on this server.")
                 .withStyle(hoverStyle.withColor(ChatFormatting.RED));
 
-        return MarlowCrystal.PREFIX.copy()
+        return PREFIX.copy()
                 .withStyle(hoverStyle)
-                .append(message);
-    }
-
-    private static void showDisabledMessage(Minecraft client) {
-        if (client.player == null) {
-            return;
-        }
-
-        //? if >=26.1 {
-        client.player.sendSystemMessage(optimizerDisabledMessage());
-        //?} else {
-        /*client.player.displayClientMessage(optimizerDisabledMessage(), false);
-        *///?}
-    }
-
-    public static void handle(Minecraft client) {
-        OptOutState state = MarlowCrystal.getInstance().getOptOutState();
-
-        state.markOptedOut();
-
-        if (state.claimNotification()) {
-            CompletableFuture.delayedExecutor(2, TimeUnit.SECONDS)
-                    .execute(() -> client.execute(() -> showDisabledMessage(client)));
-        }
+                .append(text);
     }
 }

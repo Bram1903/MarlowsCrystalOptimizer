@@ -1,6 +1,6 @@
 package com.deathmotion.marlowcrystal.mixin;
 
-import com.deathmotion.marlowcrystal.crystal.KeptCrystals;
+import com.deathmotion.marlowcrystal.MarlowCrystal;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,6 +24,6 @@ public abstract class LevelMixin {
             return predicate;
         }
 
-        return KeptCrystals.hide(predicate);
+        return MarlowCrystal.get().keptCrystals().hide(predicate);
     }
 }
