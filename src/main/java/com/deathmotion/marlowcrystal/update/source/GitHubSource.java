@@ -30,15 +30,18 @@ public final class GitHubSource implements BuildSource {
     // Fabric jars kept the name they had before other loaders were supported.
     private static final String LOADER_SUFFIX = CurrentBuild.LOADER == ModLoader.FABRIC ? null : CurrentBuild.LOADER.id();
 
-    private static boolean supports(JsonArray assets, String minecraftVersion) {
-        boolean ranged = false;
+    private static boolean supports(ModVersion version, JsonArray assets, String minecraftVersion) {
+        // Releases before 2.0.0 named their jars by hand, and they were all Fabric.
+        if (version.major() < 2) {
+            return CurrentBuild.LOADER == ModLoader.FABRIC;
+        }
+
         for (JsonElement asset : assets != null ? assets : new JsonArray()) {
             Matcher matcher = ASSET_RANGE.matcher(asset.getAsJsonObject().get("name").getAsString());
             if (!matcher.find()) {
                 continue;
             }
 
-            ranged = true;
             if (!Objects.equals(matcher.group(3), LOADER_SUFFIX)) {
                 continue;
             }
@@ -53,8 +56,7 @@ public final class GitHubSource implements BuildSource {
                 return true;
             }
         }
-        // Releases before 2.0.0 named their jars by hand, and they were all Fabric.
-        return !ranged && CurrentBuild.LOADER == ModLoader.FABRIC;
+        return false;
     }
 
     private static int compare(String left, String right) {
@@ -75,7 +77,7 @@ public final class GitHubSource implements BuildSource {
         for (JsonElement element : JsonHttp.get(RELEASES).getAsJsonArray()) {
             JsonObject release = element.getAsJsonObject();
             Optional<ModVersion> version = ModVersion.parse(release.get("tag_name").getAsString());
-            if (version.isPresent() && supports(release.getAsJsonArray("assets"), minecraftVersion)) {
+            if (version.isPresent() && supports(version.get(), release.getAsJsonArray("assets"), minecraftVersion)) {
                 builds.add(new PublishedBuild(
                         version.get(),
                         release.get("html_url").getAsString(),

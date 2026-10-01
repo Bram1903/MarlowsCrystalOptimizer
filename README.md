@@ -167,7 +167,9 @@ Publishing is a Gradle task rather than a CI job.
    ```powershell
    powershell -ExecutionPolicy Bypass -File scripts\setup-publishing.ps1
    ```
-4. Run `./gradlew publishMods`.
+4. Commit and push to `main`. Nothing is uploaded with uncommitted changes, or when `HEAD` is not what `main` is on
+   GitHub, because the jars report their commit and GitHub tags the release on `main`.
+5. Run `./gradlew publishMods`.
 
 | Variable | Used for | How to get it |
 |----------|----------|---------------|

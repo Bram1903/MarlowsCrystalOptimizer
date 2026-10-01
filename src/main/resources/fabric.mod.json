@@ -30,7 +30,7 @@
   "depends": {
     "fabricloader": ">=${loader}",
     "minecraft": "${minecraft}",
-    "${fabric_api}": "*"
+    "${fabric_api}": "${fabric_api_range}"
   },
   "suggests": {
     "yet_another_config_lib_v3": "*",

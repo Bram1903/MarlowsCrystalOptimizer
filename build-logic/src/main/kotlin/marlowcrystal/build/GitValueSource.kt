@@ -1,7 +1,9 @@
 package marlowcrystal.build
 
+import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.process.ExecOperations
@@ -33,4 +35,9 @@ abstract class GitValueSource : ValueSource<String, GitValueSource.Parameters> {
         if (result.exitValue != 0) return null
         return output.toString(Charsets.UTF_8).trim().ifEmpty { null }
     }
+}
+
+fun Project.git(vararg arguments: String): Provider<String> = providers.of(GitValueSource::class.java) {
+    parameters.workingDirectory.set(rootProject.layout.projectDirectory)
+    parameters.arguments.set(arguments.toList())
 }

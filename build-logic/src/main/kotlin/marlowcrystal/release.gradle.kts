@@ -3,6 +3,7 @@ package marlowcrystal
 import marlowcrystal.build.PUBLISH_SECRETS
 import marlowcrystal.build.ReleasedJar
 import marlowcrystal.build.discordAnnouncement
+import marlowcrystal.build.git
 import marlowcrystal.build.isPublishDryRun
 import marlowcrystal.build.loader
 import marlowcrystal.build.minecraftVersionOrder
@@ -34,8 +35,23 @@ val checkPublishSecrets = tasks.register("checkPublishSecrets") {
     }
 }
 
+val checkReleaseCommit = tasks.register("checkReleaseCommit") {
+    group = "publishing"
+    val head = git("rev-parse", "HEAD")
+    val changes = git("status", "--porcelain", "--untracked-files=no")
+    val remoteMain = git("ls-remote", "origin", "refs/heads/main")
+    onlyIf("publishing for real") { !publishDryRun }
+    doLast {
+        check(!changes.isPresent) { "Cannot publish with uncommitted changes:\n${changes.get()}" }
+        val remote = remoteMain.orNull?.substringBefore('\t')
+        check(remote != null && remote == head.orNull) {
+            "Cannot publish, HEAD ${head.orNull} is not origin/main ${remote ?: "(unreachable)"}. Push it first."
+        }
+    }
+}
+
 tasks.withType<PublishModTask>().configureEach {
-    dependsOn(checkPublishSecrets)
+    dependsOn(checkPublishSecrets, checkReleaseCommit)
 }
 
 // Modrinth and CurseForge list the latest upload first, so the newest Minecraft versions go last, and for a range

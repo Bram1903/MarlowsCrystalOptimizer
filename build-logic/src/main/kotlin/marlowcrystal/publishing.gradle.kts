@@ -24,7 +24,7 @@ require(releaseTargets.isNotEmpty()) {
 val hasYacl = stonecutterPropertyOrNull("deps.yacl") != null
 
 tasks.withType<PublishModTask>().configureEach {
-    dependsOn(rootProject.tasks.named("checkPublishSecrets"))
+    dependsOn(rootProject.tasks.named("checkPublishSecrets"), rootProject.tasks.named("checkReleaseCommit"))
 }
 
 publishMods {

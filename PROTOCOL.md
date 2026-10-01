@@ -41,7 +41,8 @@ Send a random Int on `marlowcrystal:challenge`. The client answers with the same
 
 1. The client registers `marlowcrystal:opt_out` through `minecraft:register`. Fabric clients send it after joining,
    NeoForge clients at the end of the configuration phase, so listen for it in both phases.
-2. The server sends `marlowcrystal:opt_out`.
+2. The server sends `marlowcrystal:opt_out` in the play phase. Clients ignore it during configuration, so when the
+   registration arrives in that phase, wait until the player has joined.
 3. The client disables the optimizer and replies with `marlowcrystal:opt_out_ack`.
 
 The opt-out lasts until the player disconnects. A backend switch behind a proxy keeps the connection, so send it once
@@ -90,7 +91,7 @@ private void handleRegister(byte[] data) {
             continue;
         }
 
-        // Make sure you create and send this packet asynchronously!
+        // Send it asynchronously, and only once the player is in the play phase.
         player.getUser().sendPacket(new WrapperPlayServerPluginMessage(OPT_OUT_CHANNEL, new byte[0]));
         break;
     }

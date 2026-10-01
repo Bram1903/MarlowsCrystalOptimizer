@@ -1,17 +1,12 @@
 package marlowcrystal
 
 import marlowcrystal.build.GenerateVersionsTask
-import marlowcrystal.build.GitValueSource
+import marlowcrystal.build.git
 import marlowcrystal.build.loader
 import marlowcrystal.build.stonecutterProperty
 
 plugins {
     java
-}
-
-fun git(vararg arguments: String): Provider<String> = providers.of(GitValueSource::class.java) {
-    parameters.workingDirectory = rootProject.layout.projectDirectory
-    parameters.arguments = arguments.toList()
 }
 
 val generateVersions = tasks.register<GenerateVersionsTask>("generateVersions") {

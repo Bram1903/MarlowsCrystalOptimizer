@@ -100,6 +100,7 @@ deps.yacl = "3.9.6+26.1"
 mod.mc_compat = ">=26.1"
 deps.fabric_loader = "0.18.4"
 deps.fabric_api = "0.144.0+26.1"
+deps.fabric_api_min = "0.144.0"
 deps.modmenu = "18.0.1"
 
 [neoforge."26.1"]

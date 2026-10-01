@@ -22,6 +22,7 @@ tasks.processResources {
         mapOf(
             "loader" to stonecutterProperty("deps.fabric_loader"),
             "fabric_api" to if (sc.current.parsed < "1.20.2") "fabric" else "fabric-api",
+            "fabric_api_range" to (stonecutterPropertyOrNull("deps.fabric_api_min")?.let { ">=$it" } ?: "*"),
         )
     } else {
         mapOf("neoforge" to stonecutterProperty("deps.neoforge"))
