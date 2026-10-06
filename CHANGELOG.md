@@ -11,8 +11,8 @@
 - The version packet now also sends the mod loader, the git commit the build came from, whether it had
   uncommitted changes, and when it was built. PROTOCOL.md lists the fields.
 - Added a Keep Render setting, off by default. A broken crystal stays visible until the server removes
-  it instead of being hidden, but it still stops blocking the crosshair, crystal placement and block
-  placement straight away. It sends exactly the same packets as the default mode.
+  it instead of being hidden, and the next crystal can still be placed where it stood straight away. It
+  sends exactly the same packets as the default mode.
 - Added Minecraft 26.3 to the supported versions. The 26.1 build covers it unchanged, so it ships as the
   same jar. On 26.3 Fabric API itself asks for Fabric Loader `0.19.3` or newer.
 
@@ -26,27 +26,26 @@
 - Fixed a crystal struck while sprinting skipping the vanilla attack slowdown, which anticheats flagged
   as movement. The crystal was removed the moment the attack packet was sent, before Minecraft ran its
   own attack, so the client never lost the speed and the sprint a sprint hit costs. It is now hidden
-  right after that attack, still inside the same click, so crystals break and the block behind them is
-  targeted exactly as fast as before.
-- Fixed the click after breaking a crystal passing through a second crystal standing behind it, which
-  anticheats flagged as breaking or placing out of sight. The crosshair was moved to the block behind the
-  broken crystal without looking for entities. It is now moved the way Minecraft aims, so that click lands
-  on the crystal behind. With nothing behind the broken crystal it still reaches the block in the same
-  tick.
-- Fixed the crosshair staying on a broken crystal until the next tick on Minecraft 1.19 through 1.20.2, so
-  a click in that same tick still went to the broken crystal instead of what stood behind it. The mod
-  looked for the crystal where Minecraft only stored living entities and item frames before 1.20.3.
+  right after that attack, still inside the same click, so the next crystal is placed exactly as fast as
+  before.
 - Fixed a crystal the server did not break staying invisible until you moved out of its range, for
   example one that cannot be damaged or a hit a plugin cancelled. A broken crystal is now hidden rather
   than removed. It comes back as soon as the server confirms a block you placed or started breaking after
-  the hit without having removed the crystal first, and otherwise after 1.5 seconds, so clicks stop going
-  through a crystal that is still there.
+  the hit without having removed the crystal first, and otherwise 30 ticks after the hit, a second and a
+  half at the normal tick rate, so a placement stops going through a crystal that is still there.
 - Fixed a crystal outside the world border disappearing when hit. The server ignores those hits.
 - Fixed a crystal disappearing without breaking when hit with Weakness just as Strength ran out. The
   server ends Strength before the client is told, so its last 1.5 seconds no longer count.
 
 ### Changed
 
+- A broken crystal now only lets crystals through. Until the server removes it, it stands in the way of
+  everything else exactly as it does without the mod: a click never breaks the block under it or reaches
+  anyone behind it, and no other item is used past it. An attack on it goes to the next end crystal
+  behind it, and a right click with an end crystal in either hand places that crystal on the obsidian or
+  bedrock behind it, both in the same tick it was broken and as fast as before. Only the hand holding the
+  end crystal sees past it. Anticheats flagged hitting, breaking and placing blocks through a crystal the
+  server had not removed yet.
 - The opt-out is now tracked per connection instead of being remembered per server address. A backend
   switch behind a proxy keeps the opt-out, and disconnecting clears it, which is what the documented
   protocol always said should happen.

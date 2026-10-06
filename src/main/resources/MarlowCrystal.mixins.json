@@ -5,8 +5,10 @@
   "compatibilityLevel": "${java}",
   "client": [
     "ClientLevelMixin",
+    "EndCrystalItemMixin",
     "EndCrystalMixin",
     "LevelMixin",
+    "MinecraftMixin",
     "MultiPlayerGameModeMixin"
   ],
   "injectors": {

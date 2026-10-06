@@ -13,6 +13,8 @@ public final class CrystalBreaker {
         this.keptCrystals = keptCrystals;
     }
 
+    // The crosshair stays on the hidden crystal until the server removes it, so a click meets it the way it meets any
+    // crystal the server still holds. Only a click meant for another crystal sees past it, see PastKeptCrystal.
     public void breakIfPossible(Minecraft client, EndCrystal crystal) {
         LocalPlayer player = client.player;
         ClientLevel level = client.level;
@@ -26,6 +28,5 @@ public final class CrystalBreaker {
         }
 
         keptCrystals.keep(crystal, ((SequencedLevel) level).marlowcrystal$blockSequence());
-        Crosshair.retargetPast(client, crystal);
     }
 }

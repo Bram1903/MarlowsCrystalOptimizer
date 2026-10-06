@@ -3,6 +3,7 @@ package com.deathmotion.marlowcrystal;
 import com.deathmotion.marlowcrystal.config.Settings;
 import com.deathmotion.marlowcrystal.config.SettingsFile;
 import com.deathmotion.marlowcrystal.crystal.CrystalBreaker;
+import com.deathmotion.marlowcrystal.crystal.PastKeptCrystal;
 import com.deathmotion.marlowcrystal.crystal.KeptCrystals;
 import com.deathmotion.marlowcrystal.loader.LoaderAccess;
 //? if fabric {
@@ -37,6 +38,8 @@ public final class MarlowCrystal {
     private final KeptCrystals keptCrystals = new KeptCrystals();
 
     private final CrystalBreaker crystalBreaker = new CrystalBreaker(keptCrystals);
+
+    private final PastKeptCrystal pastKeptCrystal = new PastKeptCrystal(keptCrystals);
 
     private MarlowCrystal(LoaderAccess loader) {
         settingsFile = new SettingsFile(loader.configDirectory().resolve(MOD_ID + ".json"));
@@ -75,6 +78,10 @@ public final class MarlowCrystal {
 
     public CrystalBreaker crystalBreaker() {
         return crystalBreaker;
+    }
+
+    public PastKeptCrystal pastKeptCrystal() {
+        return pastKeptCrystal;
     }
 
     // Only the YACL settings screen calls this, and Stonecutter drops that screen below 1.20.2.
