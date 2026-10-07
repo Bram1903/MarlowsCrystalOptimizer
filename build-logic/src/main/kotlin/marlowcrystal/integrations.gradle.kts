@@ -5,9 +5,16 @@ import marlowcrystal.build.loader
 import marlowcrystal.build.stonecutterProperty
 import marlowcrystal.build.stonecutterPropertyOrNull
 
+// Exclusive, because the loader plugins add their repositories first and one 5xx from those fails the whole build.
 repositories {
-    maven("https://maven.terraformersmc.com/releases") { name = "TerraformersMC" }
-    maven("https://maven.isxander.dev/releases") { name = "Xander Maven" }
+    exclusiveContent {
+        forRepository { maven("https://maven.terraformersmc.com/releases") { name = "TerraformersMC" } }
+        filter { includeGroup("com.terraformersmc") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://maven.isxander.dev/releases") { name = "Xander Maven" } }
+        filter { includeGroup("dev.isxander") }
+    }
 }
 
 dependencies {
